@@ -1,4 +1,3 @@
-
 import { StoreCreator, StoreEnhancer, Store, Reducer, StoreEnhancerStoreCreator } from 'redux';
 import { Detector } from './Detector';
 import { StoreDetectable } from './StoreDetectable';

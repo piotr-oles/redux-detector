@@ -1,4 +1,3 @@
-
 import { Store } from 'redux';
 import { Detector } from './Detector';
 

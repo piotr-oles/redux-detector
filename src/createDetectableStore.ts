@@ -1,4 +1,3 @@
-
 import { StoreEnhancer, Reducer, compose, createStore } from 'redux';
 import { Detector } from './Detector';
 import { StoreDetectable } from './StoreDetectable';

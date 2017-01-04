@@ -1,4 +1,3 @@
-
 import { Detector } from './Detector';
 
 export function mountDetector<S1, S2, A>(selector: (state: S1) => S2, detector: Detector<S2>): Detector<S1> {

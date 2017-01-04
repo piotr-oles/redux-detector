@@ -1,4 +1,3 @@
-
 // typings
 export { Detector } from './Detector.d';
 export { StoreDetectable } from './StoreDetectable.d';
