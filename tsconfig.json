@@ -10,8 +10,7 @@
     "module": "commonjs",
     "moduleResolution": "node",
     "baseUrl": "./src",
-    "declaration": true,
-    "declarationDir": "./types"
+    "declaration": true
   },
   "include": [
     "./src/**/*"
