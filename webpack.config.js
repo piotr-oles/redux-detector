@@ -8,7 +8,7 @@ module.exports = {
   context: __dirname,
   target: 'web',
   name: 'redux-detector',
-  entry: './src/index.ts',
+  entry: './dist/index.js',
 
   output: {
     library: 'ReduxDetector',
@@ -17,13 +17,9 @@ module.exports = {
 
   devtool: 'source-map',
 
-  tslint: {
-    emitErrors: true
-  },
-
   resolve: {
     // Add '.ts' and '.tsx' as resolvable extensions.
-    extensions: ['', '.webpack.js', '.web.js', '.ts', '.js'],
+    extensions: ['', '.webpack.js', '.web.js', '.js'],
     root: path.join(__dirname, 'src')
   },
 
@@ -55,21 +51,7 @@ module.exports = {
   ),
 
   module: {
-    loaders: [
-      // All files with a '.ts' or '.tsx' extension will be handled by 'awesome-typescript-loader'.
-      {
-        test: /\.tsx?$/,
-        loader: 'awesome-typescript-loader',
-        include: path.join(__dirname, 'src')
-      }
-    ],
-
     preLoaders: [
-      {
-        test: /\.tsx?$/,
-        loader: 'tslint',
-        include: path.join(__dirname, 'src')
-      },
       // All output '.js' files will have any sourcemaps re-processed by 'source-map-loader'.
       {
         test: /\.js$/,

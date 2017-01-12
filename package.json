@@ -2,11 +2,13 @@
   "name": "redux-detector",
   "version": "0.5.0",
   "description": "Redux extension that allows to dispatch next actions after detected state change.",
-  "main": "dist/redux-detector.js",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
   "scripts": {
-    "clean": "rimraf dist",
-    "build:umd": "cross-env NODE_ENV=development webpack dist/redux-detector.js",
-    "build:umd:min": "cross-env NODE_ENV=production webpack dist/redux-detector.min.js",
+    "clean": "rimraf dist && rimraf lib",
+    "compile": "rimraf dist && tsc --pretty",
+    "build:umd": "npm run compile && cross-env NODE_ENV=development webpack lib/index.js",
+    "build:umd:min": "npm run compile && cross-env NODE_ENV=production webpack lib/index.min.js",
     "build": "npm run build:umd && npm run build:umd:min",
     "prepublish": "npm run clean && npm run build"
   },
@@ -35,19 +37,16 @@
     "redux": "^3.6.0"
   },
   "devDependencies": {
-    "awesome-typescript-loader": "^3.0.0-beta.17",
     "cross-env": "^3.1.4",
     "rimraf": "^2.5.4",
     "source-map-loader": "^0.1.5",
-    "tslint": "^4.2.0",
-    "tslint-loader": "^3.3.0",
     "typescript": "^2.1.4",
     "webpack": "^1.14.0"
   },
   "npmName": "redux-detector",
   "npmFileMap": [
     {
-      "basePath": "/dist/",
+      "basePath": "/lib/",
       "files": [
         "*.js"
       ]

@@ -10,7 +10,8 @@
     "module": "commonjs",
     "moduleResolution": "node",
     "baseUrl": "./src",
-    "declaration": true
+    "declaration": true,
+    "declarationDir": "./lib"
   },
   "include": [
     "./src/**/*"

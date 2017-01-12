@@ -19,5 +19,6 @@ jspm_packages
 # IDEA directory
 .idea
 
-# Dist directory
+# Lib and dist directory
+/lib
 /dist
