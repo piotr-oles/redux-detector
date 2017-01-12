@@ -65,18 +65,17 @@ module.exports = {
     ],
 
     preLoaders: [
+      {
+        test: /\.tsx?$/,
+        loader: 'tslint',
+        include: path.join(__dirname, 'src')
+      },
       // All output '.js' files will have any sourcemaps re-processed by 'source-map-loader'.
       {
         test: /\.js$/,
         loader: 'source-map-loader',
         include: path.join(__dirname, 'src')
       }
-      //, TODO: add tslint to build process
-      // {
-      //   test: /\.tsx?$/,
-      //   loader: 'tslint',
-      //   include: path.join(__dirname, 'src')
-      // }
     ]
   },
 
