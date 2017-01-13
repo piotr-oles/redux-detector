@@ -25,13 +25,14 @@ module.exports = {
 
   plugins: [
    // new webpack.optimize.OccurrenceOrderPlugin(),
-    new webpack.DefinePlugin({
-      'process.env.NODE_ENV': JSON.stringify(env)
-    })
+   //  new webpack.DefinePlugin({
+   //    'process.env.NODE_ENV': JSON.stringify(env)
+   //  })
   ].concat(
     env === 'production' ?
       [
         new webpack.optimize.UglifyJsPlugin({
+          sourceMap: true,
           compressor: {
             pure_getters: true,
             unsafe: true,
@@ -49,17 +50,6 @@ module.exports = {
       ] :
       []
   ),
-
-  module: {
-    preLoaders: [
-      // All output '.js' files will have any sourcemaps re-processed by 'source-map-loader'.
-      {
-        test: /\.js$/,
-        loader: 'source-map-loader',
-        include: path.join(__dirname, 'src')
-      }
-    ]
-  },
 
   externals: {
     'redux': 'Redux'
