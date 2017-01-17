@@ -2,18 +2,18 @@ var webpack = require('webpack');
 
 module.exports = function (config) {
   config.set({
-    browsers: ['Chrome', 'Firefox', 'PhantomJS'],
+    browsers: ['PhantomJS'],
     singleRun: true,
     frameworks: ['mocha'],
     files: [
-      'test/index.js'
+      'test/*-test.js'
     ],
     preprocessors: {
-      'test/index.js': ['webpack']
+      'test/*-test.js': ['webpack', 'sourcemap']
     },
     reporters: ['dots'],
     webpack: {
-      devtool: 'source-map'
+      devtool: 'inline-source-map'
     },
     webpackServer: {
       noInfo: true
