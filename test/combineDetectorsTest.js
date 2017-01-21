@@ -50,7 +50,7 @@ describe('combineDetectors', function () {
     assert.deepEqual(detectorAB(30, 20), ['PREV_STATE']);
   });
 
-  it('check if we can combine detectors with undefined result on no-action detect', function () {
+  it('check if it can combine detectors with undefined result on no-action detect', function () {
     function detectorA(prevState, nextState) {
       if (prevState > nextState) {
         return ['PREV_STATE'];
@@ -67,5 +67,12 @@ describe('combineDetectors', function () {
 
     assert.deepEqual(detectorAB(-10, 50), ['NEXT_STATE']);
     assert.deepEqual(detectorAB(30, 20), ['PREV_STATE']);
+  });
+
+  it('check if invalid argument call will throw an exception', function () {
+    assert.throws(function () { combineDetectors(); }, Error);
+    assert.throws(function () { combineDetectors({ 'foo': 'bar' }); }, Error);
+    assert.throws(function () { combineDetectors(function () {}, function () {}); }, Error);
+    assert.throws(function () { combineDetectors([function() {}, undefined]); }, Error);
   });
 });
