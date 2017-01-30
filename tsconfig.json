@@ -1,6 +1,5 @@
 {
   "compilerOptions": {
-    "outDir": "./dist",
     "sourceRoot": "./src",
     "inlineSourceMap": true,
     "inlineSources": true,
@@ -12,7 +11,7 @@
     "moduleResolution": "node",
     "baseUrl": "./src",
     "declaration": true,
-    "declarationDir": "./lib"
+    "declarationDir": "./"
   },
   "include": [
     "./src/**/*"

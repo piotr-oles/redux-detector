@@ -1,5 +1,6 @@
 var webpack = require('webpack');
 var path = require('path');
+var process = require('process');
 
 module.exports = function (config) {
   config.set({
@@ -13,14 +14,7 @@ module.exports = function (config) {
       'test/*Test.js': ['webpack', 'sourcemap']
     },
     reporters: ['dots'],
-    webpack: {
-      devtool: 'inline-source-map',
-      resolve: {
-        // Add '.ts' and '.tsx' as resolvable extensions.
-        extensions: ['', '.webpack.js', '.web.js', '.js'],
-        root: path.join(__dirname, 'test')
-      }
-    },
+    webpack: require('./webpack.config'),
     webpackServer: {
       noInfo: true
     }

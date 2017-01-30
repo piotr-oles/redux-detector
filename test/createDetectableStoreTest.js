@@ -1,14 +1,49 @@
 
 var chai = require('chai');
-var spies = require('chai-spies');
-var createDetectableStore = require('../dist/index').createDetectableStore;
+var createDetectableStore = require('../lib/index').createDetectableStore;
 
-chai.use(spies);
 var assert = chai.assert;
 
 describe('createDetectableStore', function () {
+
   it('check if redux-detector exports createDetectableStore', function () {
     assert.isFunction(createDetectableStore);
   });
 
+  it('check if createDetectableStore creates new redux store without enhancer', function () {
+    function dumbReducer(state) {
+      return state;
+    }
+    function dumbDetector() {
+      return [];
+    }
+    var dumbState = {};
+    var detectableStore = createDetectableStore(dumbReducer, dumbDetector, dumbState);
+
+    assert.isObject(detectableStore);
+    assert.isFunction(detectableStore.dispatch);
+    assert.isFunction(detectableStore.subscribe);
+    assert.isFunction(detectableStore.getState);
+    assert.isFunction(detectableStore.replaceReducer);
+    assert.isFunction(detectableStore.replaceDetector);
+  });
+
+  it('check if createDetectableStore creates new redux store with enhancer', function () {
+    function dumbReducer(state) {
+      return state;
+    }
+    function dumbDetector() {
+      return [];
+    }
+    var dumbState = {};
+    var dumbEnhancer = function(next) { return next; };
+    var detectableStore = createDetectableStore(dumbReducer, dumbDetector, dumbState, dumbEnhancer);
+
+    assert.isObject(detectableStore);
+    assert.isFunction(detectableStore.dispatch);
+    assert.isFunction(detectableStore.subscribe);
+    assert.isFunction(detectableStore.getState);
+    assert.isFunction(detectableStore.replaceReducer);
+    assert.isFunction(detectableStore.replaceDetector);
+  });
 });

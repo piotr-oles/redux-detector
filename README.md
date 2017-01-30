@@ -1,4 +1,4 @@
 # redux-detector
-Redux extension that allows to dispatch next actions after detected state change.
+Redux extension allows to detect state changes and then dispatch actions using pure functions.
 
 ## WARNING: UNDER DEVELOPMENT ##

@@ -1,7 +1,7 @@
 
 var chai = require('chai');
 var assert = chai.assert;
-var combineDetectors = require('../dist/index').combineDetectors;
+var combineDetectors = require('../lib/index').combineDetectors;
 
 describe('combineDetectors', function () {
   it('check if redux-detector exports combineDetectors', function () {
@@ -9,11 +9,11 @@ describe('combineDetectors', function () {
   });
 
   it('check if combination of two detectors returns valid detector', function () {
-    function detectorA(prevState, nextState) {
+    function detectorA() {
       return [{type: 'ACTION_A'}, {type: 'ACTION_B'}];
     }
 
-    function detectorB(prevState, nextState) {
+    function detectorB() {
       return [{type: 'ACTION_C'}];
     }
 

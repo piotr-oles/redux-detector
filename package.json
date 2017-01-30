@@ -1,17 +1,16 @@
 {
   "name": "redux-detector",
   "version": "0.5.0",
-  "description": "Redux extension that allows to dispatch next actions after detected state change.",
+  "description": "Redux extension allows to detect state changes and then dispatch actions using pure functions.",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "scripts": {
-    "clean": "rimraf dist && rimraf lib",
-    "compile": "rimraf dist && tsc --pretty",
+    "clean": "rimraf lib",
     "build:umd": "cross-env NODE_ENV=development webpack lib/index.js",
     "build:umd:min": "cross-env NODE_ENV=production webpack lib/index.min.js",
-    "build": "npm run build:umd && npm run build:umd:min && npm run test",
-    "prepublish": "npm run clean && npm run compile && npm run build",
-    "test": "karma start"
+    "build": "npm run clean && npm run build:umd && npm run build:umd:min",
+    "prepublish": "npm run build && npm run test",
+    "test": "NODE_ENV=test karma start"
   },
   "repository": {
     "url": "https://github.com/piotr-oles/redux-detector.git",
@@ -53,16 +52,11 @@
     "karma-webpack": "^2.0.1",
     "mocha": "^3.2.0",
     "rimraf": "^2.5.4",
+    "ts-loader": "^2.0.0",
     "typescript": "^2.1.4",
-    "webpack": "^1.14.0"
+    "webpack": "2.2.0-rc.0"
   },
-  "npmName": "redux-detector",
-  "npmFileMap": [
-    {
-      "basePath": "/lib/",
-      "files": [
-        "*.js"
-      ]
-    }
-  ]
+  "peerDependencies": {
+    "redux": "^3.1.0"
+  }
 }
