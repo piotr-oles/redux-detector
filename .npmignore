@@ -7,3 +7,4 @@ tsconfig.json
 tslint.json
 yarn.lock
 .idea
+karma.conf.js

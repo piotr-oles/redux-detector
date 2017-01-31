@@ -15,7 +15,7 @@ export function combineDetectors<S, A>(detectors: Detector<S>[]): Detector<S> {
     throw new Error(
       `First argument in combineDetectors function has invalid values at indexes ${invalidDetectorsIndexes.join(', ')}.\n` +
       `Detectors should be a 'function' type, ` +
-      `${invalidDetectorsIndexes.map(index => typeof detectors[index]).join("', '")}' types passed.`
+      `'${invalidDetectorsIndexes.map(index => typeof detectors[index]).join(`', '`)}' types passed.`
     );
   }
 

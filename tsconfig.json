@@ -1,8 +1,7 @@
 {
   "compilerOptions": {
     "sourceRoot": "./src",
-    "inlineSourceMap": true,
-    "inlineSources": true,
+    "sourceMap": true,
     "experimentalDecorators": false,
     "noImplicitAny": true,
     "strictNullChecks": true,

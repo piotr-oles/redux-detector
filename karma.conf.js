@@ -11,12 +11,22 @@ module.exports = function (config) {
       'test/*Test.js'
     ],
     preprocessors: {
-      'test/*Test.js': ['webpack', 'sourcemap']
+      'test/*Test.js': ['webpack', 'sourcemap'],
+      'src/index.ts': ['coverage']
     },
-    reporters: ['dots'],
+    reporters: ['dots', 'coverage', 'remap-coverage'],
+
     webpack: require('./webpack.config'),
     webpackServer: {
       noInfo: true
+    },
+    coverageReporter: {
+      type: 'in-memory'
+    },
+    remapCoverageReporter: {
+      'text-summary': null,
+      html: './coverage/html',
+      cobertura: './coverage/cobertura.xml'
     }
   });
 };

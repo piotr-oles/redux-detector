@@ -1,4 +1,4 @@
-import { StoreCreator, StoreEnhancer, Store, Reducer, StoreEnhancerStoreCreator } from 'redux';
+import { StoreEnhancer, StoreEnhancerStoreCreator, Store, Reducer } from 'redux';
 import { Detector } from './Detector';
 import { StoreDetectable } from './StoreDetectable';
 
@@ -6,11 +6,13 @@ const ActionTypes: { INIT: string } = {
   INIT: '@@detector/INIT'
 };
 
+export type StoreEnhancerStoreDetectableCreator<S> = (reducer: Reducer<S>, preloadedState: S) => StoreDetectable<S>;
+
 export function createDetectorEnhancer<S>(detector: Detector<S>): StoreEnhancer<S> {
-  return function detectorEnhancer(next: StoreCreator): StoreEnhancerStoreCreator<S> {
-    return function storeDetectableCreator(reducer: Reducer<S>, preloadedState: S, enhancer?: StoreEnhancer<S>): StoreDetectable<S> {
+  return function detectorEnhancer(next: StoreEnhancerStoreCreator<S>): StoreEnhancerStoreDetectableCreator<S> {
+    return function storeDetectableCreator(reducer: Reducer<S>, preloadedState: S): StoreDetectable<S> {
       // first create basic store
-      const store: Store<S> = next(reducer, preloadedState, enhancer);
+      const store: Store<S> = next(reducer, preloadedState);
 
       // then set initial values in this scope
       let prevState: S = preloadedState;
@@ -34,13 +36,15 @@ export function createDetectorEnhancer<S>(detector: Detector<S>): StoreEnhancer<
         const nextState: S = storeDetectable.getState();
 
         // don't set any action type because of compatibility with many redux middlewares (for example redux-thunk)
-        const detectedActions: any[] = currentDetector(prevState, nextState);
+        const detectedActions: any[] | void = currentDetector(prevState, nextState);
 
         // store current state as previous for next subscribe call
         prevState = nextState;
 
         // dispatch all actions returned from detector
-        detectedActions.forEach(detectedAction => storeDetectable.dispatch(detectedAction));
+        if (detectedActions && Array === detectedActions.constructor) {
+          detectedActions.forEach(detectedAction => storeDetectable.dispatch(detectedAction));
+        }
       });
 
       return storeDetectable;

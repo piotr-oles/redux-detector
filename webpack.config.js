@@ -39,6 +39,12 @@ var config = {
           silent: false,
           visualStudioErrorFormat: true
         }
+      },
+      {
+        test: /\.tsx?$/,
+        loader: 'tslint-loader',
+        include: path.join(__dirname, 'src'),
+        enforce: 'pre'
       }
     ]
   },
