@@ -8,7 +8,7 @@
     "clean": "rimraf lib",
     "build": "cross-env NODE_ENV=production npm run clean && webpack lib/index.js",
     "test": "NODE_ENV=test karma start",
-    "prepublish": "npm run build && npm run test"
+    "prepublish": "npm run build"
   },
   "repository": {
     "url": "https://github.com/piotr-oles/redux-detector.git",
