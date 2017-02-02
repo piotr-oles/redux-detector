@@ -1,8 +1,6 @@
 
-var chai = require('chai');
-var createDetectableStore = require('../lib/index').createDetectableStore;
-
-var assert = chai.assert;
+import { assert } from 'chai';
+import { createDetectableStore } from '../src/index';
 
 describe('createDetectableStore', function () {
 
