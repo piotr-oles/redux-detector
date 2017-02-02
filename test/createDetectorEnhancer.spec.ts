@@ -1,12 +1,10 @@
 
-var chai = require('chai');
-var spies = require('chai-spies');
-var createDetectorEnhancer = require('../lib/index').createDetectorEnhancer;
+import * as chai from 'chai';
+import * as spies from 'chai-spies';
+import { assert, expect } from 'chai';
+import { createDetectorEnhancer, StoreDetectable } from '../src/index';
 
 chai.use(spies);
-
-var assert = chai.assert;
-var expect = chai.expect;
 
 describe('createDetectableStore', function () {
 
@@ -41,7 +39,7 @@ describe('createDetectableStore', function () {
     expect(createStoreSpy).to.not.have.been.called;
     assert.isFunction(createDetectableStore);
 
-    var detectableStore = createDetectableStore(dumbReducer, dumbDetector, dumbState);
+    var detectableStore = createDetectableStore(dumbReducer, dumbState);
 
     expect(createStoreSpy).to.have.been.called.once;
     assert.isObject(detectableStore);

@@ -6,9 +6,10 @@ const ActionTypes: { INIT: string } = {
   INIT: '@@detector/INIT'
 };
 
+export type StoreDetectableEnhancer<S> = (next: StoreEnhancerStoreDetectableCreator<S>) => StoreEnhancerStoreDetectableCreator<S>;
 export type StoreEnhancerStoreDetectableCreator<S> = (reducer: Reducer<S>, preloadedState: S) => StoreDetectable<S>;
 
-export function createDetectorEnhancer<S>(detector: Detector<S>): StoreEnhancer<S> {
+export function createDetectorEnhancer<S>(detector: Detector<S>): StoreDetectableEnhancer<S> {
   return function detectorEnhancer(next: StoreEnhancerStoreCreator<S>): StoreEnhancerStoreDetectableCreator<S> {
     return function storeDetectableCreator(reducer: Reducer<S>, preloadedState: S): StoreDetectable<S> {
       // first create basic store

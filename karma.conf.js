@@ -6,27 +6,25 @@ module.exports = function (config) {
   config.set({
     browsers: ['PhantomJS'],
     singleRun: true,
-    frameworks: ['mocha', 'chai'],
+    colors: true,
+    frameworks: ['mocha', 'chai', 'karma-typescript'],
     files: [
-      'test/*Test.js'
+      'src/**/*.ts',
+      'test/**/*.spec.ts'
     ],
     preprocessors: {
-      'test/*Test.js': ['webpack', 'sourcemap'],
-      'src/index.ts': ['coverage']
+      '**/*.ts': ['karma-typescript']
     },
-    reporters: ['dots', 'coverage', 'remap-coverage'],
-
-    webpack: require('./webpack.config'),
-    webpackServer: {
-      noInfo: true
-    },
-    coverageReporter: {
-      type: 'in-memory'
-    },
-    remapCoverageReporter: {
-      'text-summary': null,
-      html: './coverage/html',
-      cobertura: './coverage/cobertura.xml'
+    reporters: ['dots', 'karma-typescript'],
+    karmaTypescriptConfig: {
+      reports: {
+        'cobertura': {
+          'directory': 'coverage',
+          'filename': 'coverage.xml'
+        },
+        'html': 'coverage',
+        'text-summary': ''
+      }
     }
   });
 };

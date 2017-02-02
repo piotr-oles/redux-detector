@@ -1,7 +1,6 @@
 
-var chai = require('chai');
-var assert = chai.assert;
-var combineDetectors = require('../lib/index').combineDetectors;
+import { assert } from 'chai';
+import { combineDetectors } from '../src/index';
 
 describe('combineDetectors', function () {
   it('check if redux-detector exports combineDetectors', function () {
@@ -70,9 +69,9 @@ describe('combineDetectors', function () {
   });
 
   it('check if invalid argument call will throw an exception', function () {
-    assert.throws(function () { combineDetectors(); }, Error);
-    assert.throws(function () { combineDetectors({ 'foo': 'bar' }); }, Error);
-    assert.throws(function () { combineDetectors(function () {}, function () {}); }, Error);
-    assert.throws(function () { combineDetectors([function() {}, undefined]); }, Error);
+    assert.throws(function () { (combineDetectors as any)(); }, Error);
+    assert.throws(function () { (combineDetectors as any)({ 'foo': 'bar' }); }, Error);
+    assert.throws(function () { (combineDetectors as any)(function () {}, function () {}); }, Error);
+    assert.throws(function () { (combineDetectors as any)([function() {}, undefined]); }, Error);
   });
 });
