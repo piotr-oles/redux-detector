@@ -18,12 +18,17 @@ module.exports = function (config) {
     reporters: ['dots', 'karma-typescript'],
     karmaTypescriptConfig: {
       reports: {
-        'cobertura': {
+        'lcovonly': {
           'directory': 'coverage',
-          'filename': 'coverage.xml'
+          'subdirectory': 'lcov',
+          'filename': 'lcov.info'
         },
-        'html': 'coverage',
-        'text-summary': ''
+        'html': {
+          'directory': 'coverage',
+          'subdirectory': 'html',
+          'filename': '.'
+        },
+        'text': ''
       }
     }
   });

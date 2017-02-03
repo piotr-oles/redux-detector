@@ -1,4 +1,4 @@
-import { StoreEnhancer, StoreEnhancerStoreCreator, Store, Reducer } from 'redux';
+import { StoreEnhancerStoreCreator, Store, Reducer, Action } from 'redux';
 import { Detector } from './Detector';
 import { StoreDetectable } from './StoreDetectable';
 
@@ -6,7 +6,7 @@ const ActionTypes: { INIT: string } = {
   INIT: '@@detector/INIT'
 };
 
-export type StoreDetectableEnhancer<S> = (next: StoreEnhancerStoreDetectableCreator<S>) => StoreEnhancerStoreDetectableCreator<S>;
+export type StoreDetectableEnhancer<S> = (next: StoreEnhancerStoreCreator<S>) => StoreEnhancerStoreDetectableCreator<S>;
 export type StoreEnhancerStoreDetectableCreator<S> = (reducer: Reducer<S>, preloadedState: S) => StoreDetectable<S>;
 
 export function createDetectorEnhancer<S>(detector: Detector<S>): StoreDetectableEnhancer<S> {
@@ -36,8 +36,8 @@ export function createDetectorEnhancer<S>(detector: Detector<S>): StoreDetectabl
       storeDetectable.subscribe(function detectActions(): void {
         const nextState: S = storeDetectable.getState();
 
-        // don't set any action type because of compatibility with many redux middlewares (for example redux-thunk)
-        const detectedActions: any[] | void = currentDetector(prevState, nextState);
+        // detect actions by comparing prev and next state
+        const detectedActions: Action[] | void = currentDetector(prevState, nextState);
 
         // store current state as previous for next subscribe call
         prevState = nextState;
