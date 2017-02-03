@@ -22,10 +22,7 @@ var config = {
   },
 
   plugins: [
-   // new webpack.optimize.OccurrenceOrderPlugin(),
-   //  new webpack.DefinePlugin({
-   //    'process.env.NODE_ENV': JSON.stringify(env)
-   //  })
+    new webpack.optimize.OccurrenceOrderPlugin()
   ],
 
   module: {
@@ -49,7 +46,9 @@ var config = {
     ]
   },
 
-  externals: {}
+  externals: {
+    'redux': 'Redux'
+  }
 };
 
 if ('production' === env) {
@@ -71,14 +70,6 @@ if ('production' === env) {
       }
     })
   );
-
-  config.externals['redux'] = 'Redux';
-}
-
-if ('production' !== env) {
-  config.performance = {
-    hints: false
-  };
 }
 
 module.exports = config;
