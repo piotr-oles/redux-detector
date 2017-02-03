@@ -12,7 +12,7 @@ describe('createDetectableStore', () => {
     assert.isFunction(createDetectorEnhancer);
   });
 
-  it('should create enhancer that creates store with StoreDetectable interface', () => {
+  it('should create enhancer that creates store with DetectableStore interface', () => {
     function dumbReducer(state) {
       return state;
     }

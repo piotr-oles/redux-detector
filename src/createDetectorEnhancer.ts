@@ -1,26 +1,26 @@
 import { StoreEnhancerStoreCreator, Store, Reducer, Action } from 'redux';
 import { Detector } from './Detector';
-import { StoreDetectable } from './StoreDetectable';
+import { DetectableStore } from './DetectableStore';
 
 const ActionTypes: { INIT: string } = {
   INIT: '@@detector/INIT'
 };
 
 export type StoreDetectableEnhancer<S> = (next: StoreEnhancerStoreCreator<S>) => StoreEnhancerStoreDetectableCreator<S>;
-export type StoreEnhancerStoreDetectableCreator<S> = (reducer: Reducer<S>, preloadedState: S) => StoreDetectable<S>;
+export type StoreEnhancerStoreDetectableCreator<S> = (reducer: Reducer<S>, preloadedState: S) => DetectableStore<S>;
 
 export function createDetectorEnhancer<S>(detector: Detector<S>): StoreDetectableEnhancer<S> {
   return function detectorEnhancer(next: StoreEnhancerStoreCreator<S>): StoreEnhancerStoreDetectableCreator<S> {
-    return function storeDetectableCreator(reducer: Reducer<S>, preloadedState: S): StoreDetectable<S> {
+    return function detectableStoreCreator(reducer: Reducer<S>, preloadedState?: S): DetectableStore<S> {
       // first create basic store
       const store: Store<S> = next(reducer, preloadedState);
 
       // then set initial values in this scope
-      let prevState: S = preloadedState;
+      let prevState: S | undefined = preloadedState;
       let currentDetector: Detector<S> = detector;
 
       // store detectable adds `replaceDetector` method to it's interface
-      const storeDetectable: StoreDetectable<S> = {
+      const detectableStore: DetectableStore<S> = {
         ...store as any, // some bug in typescript object spread operator?
         replaceDetector: function replaceDetector(nextDetector: Detector<S>): void {
           if (typeof nextDetector !== 'function') {
@@ -33,8 +33,8 @@ export function createDetectorEnhancer<S>(detector: Detector<S>): StoreDetectabl
       };
 
       // have to run detector on every state change
-      storeDetectable.subscribe(function detectActions(): void {
-        const nextState: S = storeDetectable.getState();
+      detectableStore.subscribe(function detectActions(): void {
+        const nextState: S = detectableStore.getState();
 
         // detect actions by comparing prev and next state
         const detectedActions: Action[] | void = currentDetector(prevState, nextState);
@@ -44,11 +44,11 @@ export function createDetectorEnhancer<S>(detector: Detector<S>): StoreDetectabl
 
         // dispatch all actions returned from detector
         if (detectedActions && Array === detectedActions.constructor) {
-          detectedActions.forEach(detectedAction => storeDetectable.dispatch(detectedAction));
+          detectedActions.forEach(detectedAction => detectableStore.dispatch(detectedAction));
         }
       });
 
-      return storeDetectable;
+      return detectableStore;
     };
   };
 }

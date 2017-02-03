@@ -16,7 +16,7 @@ describe('combineDetectors', () => {
       return [{type: 'ACTION_C'}];
     }
 
-    const detectorAB = combineDetectors([detectorA, detectorB]);
+    const detectorAB = combineDetectors(detectorA, detectorB);
 
     assert.isFunction(detectorAB);
     assert.isArray(detectorAB({}, {}));
@@ -43,7 +43,7 @@ describe('combineDetectors', () => {
       return [];
     }
 
-    const detectorAB = combineDetectors([detectorA, detectorB]);
+    const detectorAB = combineDetectors(detectorA, detectorB);
 
     assert.deepEqual(detectorAB(-10, 50), [{type: 'NEXT_STATE_GREATER'}]);
     assert.deepEqual(detectorAB(30, 20), [{type: 'PREV_STATE_GREATER'}]);
@@ -62,16 +62,14 @@ describe('combineDetectors', () => {
       }
     }
 
-    const detectorAB = combineDetectors([detectorA, detectorB]);
+    const detectorAB = combineDetectors(detectorA, detectorB);
 
     assert.deepEqual(detectorAB(-10, 50), [{type: 'NEXT_STATE_GREATER'}]);
     assert.deepEqual(detectorAB(30, 20), [{type: 'PREV_STATE_GREATER'}]);
   });
 
   it('should throw an exception for call with invalid argument', () => {
-    assert.throws(() => { (combineDetectors as any)(); }, Error);
     assert.throws(() => { (combineDetectors as any)({ 'foo': 'bar' }); }, Error);
-    assert.throws(() => { (combineDetectors as any)(function () {}, function () {}); }, Error);
     assert.throws(() => { (combineDetectors as any)([function() {}, undefined]); }, Error);
   });
 });

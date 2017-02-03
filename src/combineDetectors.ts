@@ -1,12 +1,7 @@
 import { Action } from 'redux';
 import { Detector } from './Detector';
 
-export function combineDetectors<S, A extends Action>(detectors: Detector<S>[]): Detector<S> {
-  // check detectors array type in runtime
-  if (!!detectors && Array !== detectors.constructor) {
-    throw new Error(`First argument in combineDetectors function should be an 'array' type, '${typeof detectors}' type passed.`);
-  }
-
+export function combineDetectors<S, A extends Action>(...detectors: Detector<S>[]): Detector<S> {
   // check detectors types in runtime
   const invalidDetectorsIndexes: number[] = detectors
     .map((detector, index) => detector instanceof Function ? -1 : index)
@@ -14,7 +9,7 @@ export function combineDetectors<S, A extends Action>(detectors: Detector<S>[]):
 
   if (invalidDetectorsIndexes.length) {
     throw new Error(
-      `First argument in combineDetectors function has invalid values at indexes ${invalidDetectorsIndexes.join(', ')}.\n` +
+      `Detected invalid arguments: ${invalidDetectorsIndexes.join(', ')} in combineDetectors call.\n` +
       `Detectors should be a 'function' type, ` +
       `'${invalidDetectorsIndexes.map(index => typeof detectors[index]).join(`', '`)}' types passed.`
     );

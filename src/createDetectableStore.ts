@@ -1,6 +1,6 @@
 import { StoreEnhancer, Reducer, compose, createStore } from 'redux';
 import { Detector } from './Detector';
-import { StoreDetectable } from './StoreDetectable';
+import { DetectableStore } from './DetectableStore';
 import { createDetectorEnhancer } from './createDetectorEnhancer';
 
 export function createDetectableStore<S>(
@@ -8,12 +8,12 @@ export function createDetectableStore<S>(
   detector: Detector<S>,
   preloadedState: S,
   enhancer?: StoreEnhancer<S>
-): StoreDetectable<S> {
+): DetectableStore<S> {
   if (enhancer) {
     enhancer = compose(createDetectorEnhancer(detector), enhancer);
   } else {
     enhancer = createDetectorEnhancer(detector);
   }
 
-  return createStore(reducer, preloadedState, enhancer) as StoreDetectable<S>;
+  return createStore(reducer, preloadedState, enhancer) as DetectableStore<S>;
 }
