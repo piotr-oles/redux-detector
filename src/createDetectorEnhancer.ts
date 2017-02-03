@@ -11,12 +11,12 @@ export type StoreEnhancerStoreDetectableCreator<S> = (reducer: Reducer<S>, prelo
 
 export function createDetectorEnhancer<S>(detector: Detector<S>): StoreDetectableEnhancer<S> {
   return function detectorEnhancer(next: StoreEnhancerStoreCreator<S>): StoreEnhancerStoreDetectableCreator<S> {
-    return function detectableStoreCreator(reducer: Reducer<S>, preloadedState: S): DetectableStore<S> {
+    return function detectableStoreCreator(reducer: Reducer<S>, preloadedState?: S): DetectableStore<S> {
       // first create basic store
       const store: Store<S> = next(reducer, preloadedState);
 
       // then set initial values in this scope
-      let prevState: S = preloadedState;
+      let prevState: S | undefined = preloadedState;
       let currentDetector: Detector<S> = detector;
 
       // store detectable adds `replaceDetector` method to it's interface
