@@ -18,10 +18,7 @@ module.exports = function (config) {
     reporters: ['dots', 'karma-typescript'],
     karmaTypescriptConfig: {
       reports: {
-        'cobertura': {
-          'directory': 'coverage',
-          'filename': 'coverage.xml'
-        },
+        'lcovonly': 'coverage',
         'html': 'coverage',
         'text-summary': ''
       }

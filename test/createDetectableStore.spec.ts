@@ -2,21 +2,21 @@
 import { assert } from 'chai';
 import { createDetectableStore } from '../src/index';
 
-describe('createDetectableStore', function () {
+describe('createDetectableStore', () => {
 
-  it('check if redux-detector exports createDetectableStore', function () {
+  it('should export createDetectableStore function', () => {
     assert.isFunction(createDetectableStore);
   });
 
-  it('check if createDetectableStore creates new redux store without enhancer', function () {
+  it('should create new redux store without enhancer', () => {
     function dumbReducer(state) {
       return state;
     }
     function dumbDetector() {
       return [];
     }
-    var dumbState = {};
-    var detectableStore = createDetectableStore(dumbReducer, dumbDetector, dumbState);
+    const dumbState = {};
+    const detectableStore = createDetectableStore(dumbReducer, dumbDetector, dumbState);
 
     assert.isObject(detectableStore);
     assert.isFunction(detectableStore.dispatch);
@@ -26,16 +26,16 @@ describe('createDetectableStore', function () {
     assert.isFunction(detectableStore.replaceDetector);
   });
 
-  it('check if createDetectableStore creates new redux store with enhancer', function () {
+  it('should create new redux store with enhancer', () => {
     function dumbReducer(state) {
       return state;
     }
     function dumbDetector() {
       return [];
     }
-    var dumbState = {};
-    var dumbEnhancer = function(next) { return next; };
-    var detectableStore = createDetectableStore(dumbReducer, dumbDetector, dumbState, dumbEnhancer);
+    const dumbState = {};
+    const dumbEnhancer = function(next) { return next; };
+    const detectableStore = createDetectableStore(dumbReducer, dumbDetector, dumbState, dumbEnhancer);
 
     assert.isObject(detectableStore);
     assert.isFunction(detectableStore.dispatch);
