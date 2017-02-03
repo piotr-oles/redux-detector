@@ -69,9 +69,7 @@ describe('combineDetectors', () => {
   });
 
   it('should throw an exception for call with invalid argument', () => {
-    assert.throws(() => { (combineDetectors as any)(); }, Error);
     assert.throws(() => { (combineDetectors as any)({ 'foo': 'bar' }); }, Error);
-    assert.throws(() => { (combineDetectors as any)(function () {}, function () {}); }, Error);
     assert.throws(() => { (combineDetectors as any)([function() {}, undefined]); }, Error);
   });
 });
