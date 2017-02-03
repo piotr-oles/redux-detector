@@ -1,6 +1,6 @@
 // typings
 export { Detector } from './Detector';
-export { StoreDetectable } from './StoreDetectable';
+export { DetectableStore } from './DetectableStore';
 
 // implementation
 export { combineDetectors } from './combineDetectors';

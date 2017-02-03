@@ -3,7 +3,7 @@ import { Detector } from './Detector';
 
 export function combineDetectors<S, A extends Action>(detectors: Detector<S>[]): Detector<S> {
   // check detectors array type in runtime
-  if (!!detectors && Array !== detectors.constructor) {
+  if (detectors && Array !== detectors.constructor) {
     throw new Error(`First argument in combineDetectors function should be an 'array' type, '${typeof detectors}' type passed.`);
   }
 
