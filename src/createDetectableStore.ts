@@ -6,7 +6,7 @@ import { createDetectorEnhancer } from './createDetectorEnhancer';
 export function createDetectableStore<S>(
   reducer: Reducer<S>,
   detector: Detector<S>,
-  preloadedState: S,
+  preloadedState?: S,
   enhancer?: StoreEnhancer<S>
 ): DetectableStore<S> {
   if (enhancer) {
