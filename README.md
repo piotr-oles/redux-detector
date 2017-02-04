@@ -3,7 +3,7 @@
 [![Build Status](https://travis-ci.org/piotr-oles/redux-detector.svg?branch=master)](https://travis-ci.org/piotr-oles/redux-detector)
 [![Coverage Status](https://coveralls.io/repos/github/piotr-oles/redux-detector/badge.svg?branch=master)](https://coveralls.io/github/piotr-oles/redux-detector?branch=master)
 
-Redux [enhancer](http://redux.js.org/docs/api/createStore.html) for pure state changes detection.
+Redux [enhancer](http://redux.js.org/docs/api/createStore.html) for pure detection of state changes.
  
 **Warning: API is not stable yet, will be from version 1.0**
 
@@ -76,7 +76,7 @@ Detectors by default operates on global state, but if you want to make some reus
 you can use `mountDetector` function. With factory pattern it becomes very elastic.
 ```js
 // ./detectors/limitExceedDetector
-export default function createLimitExceedDetector(limit, action) {
+export function createLimitExceedDetector(limit, action) {
   return function limitExceedDetector(prevState, nextState) {
     if (prevState <= limit && nextState > limit) {
       return [action];
@@ -95,6 +95,13 @@ export const rowsLimitExceedDetector = mountDetector(
 ```
 Of course examples above are very trivial, but you can use it to solve more common problems like keeping state consistent
 (you can for example schedule resource fetch if some parameters changed).
+
+## Code Splitting ##
+Redux Detector provides `replaceDetector` method on `DetectableStore` interface (store created by Redux Detector). It's similar to
+`replaceReducer` - it changes detector and dispatches `{ type: '@@detector/INIT' }`.
+
+## Typings ##
+If you are using TypeScript, you don't have to install typings - they are provided in npm package (index.d.ts).
 
 ## License ##
 MIT

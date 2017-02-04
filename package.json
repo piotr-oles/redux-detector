@@ -1,7 +1,7 @@
 {
   "name": "redux-detector",
   "version": "0.5.1",
-  "description": "Redux extension allows to detect state changes and then dispatch actions using pure functions.",
+  "description": "Redux enhancer for pure detection of state changes.",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "scripts": {
