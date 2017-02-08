@@ -68,6 +68,20 @@ describe('combineDetectors', () => {
     assert.deepEqual(detectorAB(30, 20), [{type: 'PREV_STATE_GREATER'}]);
   });
 
+  it('should allow to combine detectors with array and single result', () => {
+    function detectorA() {
+      return [{type: 'ARRAY_DETECTOR'}];
+    }
+
+    function detectorB(prevState, nextState) {
+      return {type: 'SINGLE_DETECTOR'};
+    }
+
+    const detectorAB = combineDetectors(detectorA, detectorB);
+
+    assert.deepEqual(detectorAB(undefined, undefined), [{type: 'ARRAY_DETECTOR'}, {type: 'SINGLE_DETECTOR'}]);
+  });
+
   it('should throw an exception for call with invalid argument', () => {
     assert.throws(() => { (combineDetectors as any)({ 'foo': 'bar' }); }, Error);
     assert.throws(() => { (combineDetectors as any)([function() {}, undefined]); }, Error);
