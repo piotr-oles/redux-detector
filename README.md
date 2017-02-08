@@ -3,7 +3,7 @@
 [![Build Status](https://travis-ci.org/piotr-oles/redux-detector.svg?branch=master)](https://travis-ci.org/piotr-oles/redux-detector)
 [![Coverage Status](https://coveralls.io/repos/github/piotr-oles/redux-detector/badge.svg?branch=master)](https://coveralls.io/github/piotr-oles/redux-detector?branch=master)
 
-Redux [enhancer](http://redux.js.org/docs/api/createStore.html) for pure state changes detection.
+Redux [enhancer](http://redux.js.org/docs/api/createStore.html) for pure detection of state changes.
  
 **Warning: API is not stable yet, will be from version 1.0**
 
@@ -43,20 +43,21 @@ const store = createStore(
 
 ## Motivation ##
 Redux Detector [enhancer](http://redux.js.org/docs/api/createStore.html) allows you to use state changes detectors with redux. 
-Detector is a simple and pure function which compares two states and returns list of actions for some states configurations.
+Detector is a simple and pure function which compares two states and returns action or list of actions for some states configurations.
 It can be used for reacting on particular state transitions.
 ```typescript
-type Detector<S> = <A extends Action>(prevState: S | undefined, nextState: S) => A[] | void
+type Detector<S> = <A extends Action>(prevState: S | undefined, nextState: S) => A | A[] | void
 ```
 
 For example detector that checks if number of rows exceed 100 looks like this:
 ```js
 function rowsLimitExceededDetector(prevState, nextState) {
   if (prevState.rows.length <= 100 && nextState.rows.length > 100) {
-    return [{ type: ROWS_LIMIT_EXCEEDED }];
+    return { type: ROWS_LIMIT_EXCEEDED };
   }
 }
 ```
+You can also return array of actions to dispatch them.
 
 Thanks to detectors purity they are predictable and easy to test. There is no problem with features like time-travel, etc.
 
@@ -75,16 +76,16 @@ export default combineDetectors(fooDetector, barDetector);
 Detectors by default operates on global state, but if you want to make some reusable detector that is not binded to global state,
 you can use `mountDetector` function. With factory pattern it becomes very elastic.
 ```js
-// ./detectors/limitExceedDetector
-export default function createLimitExceedDetector(limit, action) {
+// ./detectors/limitExceedDetector.js
+export function createLimitExceedDetector(limit, action) {
   return function limitExceedDetector(prevState, nextState) {
     if (prevState <= limit && nextState > limit) {
-      return [action];
+      return action;
     }
   }
 }
 
-// ./detectors/rowsLimitExceedDetector
+// ./detectors/rowsLimitExceedDetector.js
 import { mountDetector } from 'redux-detector';
 import { createLimitExceeedDetector } from './limitExceedDetector';
 
@@ -95,6 +96,13 @@ export const rowsLimitExceedDetector = mountDetector(
 ```
 Of course examples above are very trivial, but you can use it to solve more common problems like keeping state consistent
 (you can for example schedule resource fetch if some parameters changed).
+
+## Code Splitting ##
+Redux Detector provides `replaceDetector` method on `DetectableStore` interface (store created by Redux Detector). It's similar to
+`replaceReducer` - it changes detector and dispatches `{ type: '@@detector/INIT' }`.
+
+## Typings ##
+If you are using [TypeScript](https://www.typescriptlang.org/), you don't have to install typings - they are provided in npm package.
 
 ## License ##
 MIT

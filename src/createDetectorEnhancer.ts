@@ -1,8 +1,9 @@
-import { StoreEnhancerStoreCreator, Store, Reducer, Action } from 'redux';
+import { StoreEnhancerStoreCreator, Store, Reducer } from 'redux';
 import { Detector } from './Detector';
+import { ActionLike } from './ActionLike';
 import { DetectableStore } from './DetectableStore';
 
-const ActionTypes: { INIT: string } = {
+export const ActionTypes: { INIT: string } = {
   INIT: '@@detector/INIT'
 };
 
@@ -10,6 +11,10 @@ export type StoreDetectableEnhancer<S> = (next: StoreEnhancerStoreCreator<S>) =>
 export type StoreEnhancerStoreDetectableCreator<S> = (reducer: Reducer<S>, preloadedState: S) => DetectableStore<S>;
 
 export function createDetectorEnhancer<S>(detector: Detector<S>): StoreDetectableEnhancer<S> {
+  if (typeof detector !== 'function') {
+    throw new Error('Expected the detector to be a function.');
+  }
+
   return function detectorEnhancer(next: StoreEnhancerStoreCreator<S>): StoreEnhancerStoreDetectableCreator<S> {
     return function detectableStoreCreator(reducer: Reducer<S>, preloadedState?: S): DetectableStore<S> {
       // first create basic store
@@ -37,14 +42,16 @@ export function createDetectorEnhancer<S>(detector: Detector<S>): StoreDetectabl
         const nextState: S = detectableStore.getState();
 
         // detect actions by comparing prev and next state
-        const detectedActions: Action[] | void = currentDetector(prevState, nextState);
+        const detectedActions: ActionLike | ActionLike[] = currentDetector(prevState, nextState) || [];
 
         // store current state as previous for next subscribe call
         prevState = nextState;
 
         // dispatch all actions returned from detector
-        if (detectedActions && Array === detectedActions.constructor) {
-          detectedActions.forEach(detectedAction => detectableStore.dispatch(detectedAction));
+        if (Array === detectedActions.constructor) {
+          (detectedActions as ActionLike[]).forEach(detectedAction => detectableStore.dispatch(detectedAction));
+        } else {
+          detectableStore.dispatch(detectedActions as ActionLike);
         }
       });
 

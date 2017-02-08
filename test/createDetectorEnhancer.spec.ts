@@ -12,6 +12,13 @@ describe('createDetectableStore', () => {
     assert.isFunction(createDetectorEnhancer);
   });
 
+  it('should throw an exception if detector is not a function', () => {
+    assert.throws(() => { (createDetectorEnhancer as any)(undefined); }, Error);
+    assert.throws(() => { (createDetectorEnhancer as any)(123); }, Error);
+    assert.throws(() => { (createDetectorEnhancer as any)({}); }, Error);
+    assert.throws(() => { (createDetectorEnhancer as any)([]); }, Error);
+  });
+
   it('should create enhancer that creates store with DetectableStore interface', () => {
     function dumbReducer(state) {
       return state;
@@ -97,6 +104,36 @@ describe('createDetectableStore', () => {
     expect(detectableStore.dispatch).to.have.been.called.with({ type: 'NEXT_DETECTOR_REPLACED' });
   });
 
+  it('should create store that dispatch if detectors returns single action', () => {
+    function dumbReducer(state) {
+      return state;
+    }
+    function singleDetector() {
+      return { type: 'SINGLE_ACTION' };
+    }
+    const dumbState = {};
+    const subscribed = [];
+    function createStore() {
+      return {
+        dispatch: chai.spy(),
+        subscribe: (listener) => {
+          subscribed.push(listener);
+          return () => {}
+        },
+        getState: () => dumbState,
+        replaceReducer: () => {}
+      };
+    }
+    const detectorEnhancer = createDetectorEnhancer(singleDetector);
+    const createDetectableStore = detectorEnhancer(createStore);
+    const detectableStore = createDetectableStore(dumbReducer, dumbState);
+
+    assert.lengthOf(subscribed, 1);
+
+    subscribed[0]();
+    expect(detectableStore.dispatch).to.have.been.called.once.with({ type: 'SINGLE_ACTION' });
+  });
+
   it('should create store that runs detector on every subscribe', () => {
     function dumbReducer(state) {
       return state;
@@ -140,7 +177,7 @@ describe('createDetectableStore', () => {
     expect(detectableStore.dispatch).to.not.have.been.called;
   });
 
-  it('should create store that doesn\'t dispatch if detector returns not array', () => {
+  it('should create store that doesn\'t dispatch if detector returns not array or single action', () => {
     let detectorReturn = undefined;
     function dumbReducer(state) {
       return state;
