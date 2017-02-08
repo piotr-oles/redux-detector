@@ -1,6 +1,6 @@
-import { Store, Action } from 'redux';
+import { Store } from 'redux';
 import { Detector } from './Detector';
 
 export interface DetectableStore<S> extends Store<S> {
-  replaceDetector<A extends Action>(nextDetector: Detector<S>): void;
+  replaceDetector(nextDetector: Detector<S>): void;
 }
