@@ -47,7 +47,12 @@ var config = {
   },
 
   externals: {
-    'redux': 'Redux'
+    'redux': {
+      root: 'Redux',
+      commonjs2: 'redux',
+      commonjs: 'redux',
+      amd: 'redux'
+    }
   }
 };
 
