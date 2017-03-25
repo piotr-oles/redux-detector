@@ -46,7 +46,7 @@ Redux Detector [enhancer](http://redux.js.org/docs/api/createStore.html) allows 
 Detector is a simple and pure function which compares two states and returns action or list of actions for some states configurations.
 It can be used for reacting on particular state transitions.
 ```typescript
-type Detector<S> = <A extends Action>(prevState: S | undefined, nextState: S) => A | A[] | void
+type Detector<S> = (prevState: S | undefined, nextState: S) => ActionLike | ActionLike[] | void;
 ```
 
 For example detector that checks if number of rows exceed 100 looks like this:
@@ -57,24 +57,39 @@ function rowsLimitExceededDetector(prevState, nextState) {
   }
 }
 ```
-You can also return array of actions to dispatch them.
-
+You can also return array of actions or nothing (undefined).
 Thanks to detectors purity they are predictable and easy to test. There is no problem with features like time-travel, etc.
 
 ## Composition ##
-Redux store can handle only one detector (and one reducer). But don't worry - you can combine them. To do this, use 
-`combineDetectors` function.
+Redux store can handle only one detector (and one reducer). But don't worry - you can combine and reduce them. To do this, use 
+`combineDetectors` and `reduceDetectors` functions.
 ```js
 // ./detectors/rootDetector.js
-import { combineDetectors } from 'redux-detector';
+import { combineDetectors, reduceDetectors } from 'redux-detector';
 import { fooDetector } from './fooDetector';
 import { barDetector } from './barDetector';
+import { anotherDetector } from './anotherDetector';
 
-export default combineDetectors(fooDetector, barDetector);
+// our state has shape:
+// {
+//   foo: [],
+//   bar: 1
+// }
+//
+// We want to bind `fooDetector` and `anotherDetector` to `state.foo` branch (they should run in sequence)
+// and also `barDetector` to `state.bar` branch.
+
+export default combineDetectors({
+  foo: reduceDetectors(
+    fooDetector,
+    anotherDetector
+  ),
+  bar: barDetector
+});
 ```
 
-Detectors by default operates on global state, but if you want to make some reusable detector that is not binded to global state,
-you can use `mountDetector` function. With factory pattern it becomes very elastic.
+Another way to re-use local state detectors is to mount them with `mountDetector` function. Combine detectors works only on objects level - 
+if you want to use detectors on more nested data, you should mount them. With factory pattern it becomes very elastic.
 ```js
 // ./detectors/limitExceedDetector.js
 export function createLimitExceedDetector(limit, action) {
@@ -94,8 +109,8 @@ export const rowsLimitExceedDetector = mountDetector(
   createLimitExceedDetector(100, ROWS_LIMIT_EXCEEDED)
 );
 ```
-Of course examples above are very trivial, but you can use it to solve more common problems like keeping state consistent
-(you can for example schedule resource fetch if some parameters changed).
+Of course examples above are very trivial, but you can use it to solve more common problems 
+(you can for example schedule resource fetch on parameters change).
 
 ## Code Splitting ##
 Redux Detector provides `replaceDetector` method on `DetectableStore` interface (store created by Redux Detector). It's similar to

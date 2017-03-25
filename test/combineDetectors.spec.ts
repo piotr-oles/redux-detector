@@ -1,89 +1,103 @@
 
-import { assert } from 'chai';
-import { combineDetectors } from '../src/index';
+import * as chai from 'chai';
+import * as spies from 'chai-spies';
+import { assert, expect } from 'chai';
+import { Detector, combineDetectors } from '../src/index';
 
-describe('combineDetectors', () => {
-  it('should export combineDetectors function', () => {
+chai.use(spies);
+
+describe('combineDetectors', function () {
+  it('should export reduceDetectors function', function () {
     assert.isFunction(combineDetectors);
   });
 
-  it('should return valid detector for combination of two detectors', () => {
-    function detectorA() {
-      return [{type: 'ACTION_A'}, {type: 'ACTION_B'}];
-    }
+  it('should return valid detector for empty map', function () {
+    const detector = combineDetectors({});
 
-    function detectorB() {
-      return [{type: 'ACTION_C'}];
-    }
-
-    const detectorAB = combineDetectors(detectorA, detectorB);
-
-    assert.isFunction(detectorAB);
-    assert.isArray(detectorAB({}, {}));
-
-    // we check it twice to be sure that detectorAB doesn't has any internal state.
-    assert.deepEqual(detectorAB({}, {}), [{type: 'ACTION_A'}, {type: 'ACTION_B'}, {type: 'ACTION_C'}]);
-    assert.deepEqual(detectorAB({}, {}), [{type: 'ACTION_A'}, {type: 'ACTION_B'}, {type: 'ACTION_C'}]);
+    assert.isFunction(detector);
+    assert.deepEqual([], detector({}, {}));
+    assert.deepEqual([], detector(undefined, {}));
   });
 
-  it('should passes states in valid order for combination of two detectors', () => {
+  it('should return detector that binds detectors to local state', function () {
+    const aDetector = chai.spy();
+    const bDetector = chai.spy();
+    const detector = combineDetectors({
+      a: aDetector,
+      b: bDetector
+    });
+
+    const prevState = {
+      a: 'foo',
+      b: 'bar'
+    };
+    const nextState = {
+      a: 123,
+      b: 321
+    };
+
+    assert.isFunction(detector);
+    assert.deepEqual([], detector(prevState, nextState));
+    expect(aDetector).to.have.been.called.once.with('foo', 123);
+    expect(bDetector).to.have.been.called.once.with('bar', 321);
+  });
+
+  it('should merge actions returned by combined detectors', function () {
     function detectorA(prevState, nextState) {
-      if (prevState > nextState) {
-        return [{type: 'PREV_STATE_GREATER'}];
+      if (prevState === 'a' && nextState === 'b') {
+        return [{ type: 'A_TO_B_TRANSITION' }];
       }
-
-      return [];
     }
-
     function detectorB(prevState, nextState) {
-      if (nextState > prevState) {
-        return [{type: 'NEXT_STATE_GREATER'}];
-      }
-
-      return [];
-    }
-
-    const detectorAB = combineDetectors(detectorA, detectorB);
-
-    assert.deepEqual(detectorAB(-10, 50), [{type: 'NEXT_STATE_GREATER'}]);
-    assert.deepEqual(detectorAB(30, 20), [{type: 'PREV_STATE_GREATER'}]);
-  });
-
-  it('should allow to combine detectors with undefined result on no-action detect', () => {
-    function detectorA(prevState, nextState) {
-      if (prevState > nextState) {
-        return [{type: 'PREV_STATE_GREATER'}];
+      if (prevState !== nextState && (prevState === 'a' || prevState === 'b')) {
+        return { type: 'FROM_A_OR_B_TRANSITION' };
       }
     }
-
-    function detectorB(prevState, nextState) {
-      if (nextState > prevState) {
-        return [{type: 'NEXT_STATE_GREATER'}];
-      }
+    function detectorC(prevState, nextState) {
+      return undefined;
     }
 
-    const detectorAB = combineDetectors(detectorA, detectorB);
+    const detector: Detector<any> = combineDetectors({
+      a: detectorA,
+      b: detectorB,
+      c: detectorC
+    });
 
-    assert.deepEqual(detectorAB(-10, 50), [{type: 'NEXT_STATE_GREATER'}]);
-    assert.deepEqual(detectorAB(30, 20), [{type: 'PREV_STATE_GREATER'}]);
-  });
-
-  it('should allow to combine detectors with array and single result', () => {
-    function detectorA() {
-      return [{type: 'ARRAY_DETECTOR'}];
-    }
-
-    function detectorB(prevState, nextState) {
-      return {type: 'SINGLE_DETECTOR'};
-    }
-
-    const detectorAB = combineDetectors(detectorA, detectorB);
-
-    assert.deepEqual(detectorAB(undefined, undefined), [{type: 'ARRAY_DETECTOR'}, {type: 'SINGLE_DETECTOR'}]);
-  });
-
-  it('should throw an exception for call with invalid argument', () => {
-    assert.throws(() => { (combineDetectors as any)({ 'foo': 'bar' }); }, Error);
-    assert.throws(() => { (combineDetectors as any)([function() {}, undefined]); }, Error);
+    assert.deepEqual([], detector({}, {}));
+    assert.deepEqual([], detector(undefined, {}));
+    assert.deepEqual(
+      [
+        { type: 'A_TO_B_TRANSITION' },
+        { type: 'FROM_A_OR_B_TRANSITION' }
+      ],
+      detector(
+        {
+          a: 'a',
+          b: 'a'
+        },
+        {
+          a: 'b',
+          b: 'b',
+          c: 'c'
+        }
+      )
+    );
+    assert.deepEqual(
+      [
+        { type: 'FROM_A_OR_B_TRANSITION' },
+      ],
+      detector(
+        {
+          a: 'b',
+          b: 'b',
+          c: 'a'
+        },
+        {
+          a: 'c',
+          b: 'd',
+          c: 'b'
+        }
+      )
+    );
   });
 });
