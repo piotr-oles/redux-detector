@@ -1,4 +1,5 @@
 import { Detector } from './Detector';
+import { ActionLike } from './ActionLike';
 
 export function reduceDetectors<S, A>(...detectors: Detector<S>[]): Detector<S> {
   // check detectors types in runtime
@@ -15,8 +16,9 @@ export function reduceDetectors<S, A>(...detectors: Detector<S>[]): Detector<S> 
   }
 
   return function reducedDetector(prevState: S, nextState: S): A[] {
+  return function combinedDetector(prevState: S, nextState: S): ActionLike[] {
     return detectors
       .map(detector => detector(prevState, nextState) || [])
-      .reduce<A[]>((actions: A[], nextActions: A[]) => actions.concat(nextActions), []);
+      .reduce<ActionLike[]>((actions: ActionLike[], nextActions: ActionLike | ActionLike[]) => actions.concat(nextActions), []);
   };
 }

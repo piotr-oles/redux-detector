@@ -1,26 +1,31 @@
-import { StoreEnhancer, StoreEnhancerStoreCreator, Store, Reducer } from 'redux';
+import { StoreEnhancerStoreCreator, Store, Reducer } from 'redux';
 import { Detector } from './Detector';
-import { StoreDetectable } from './StoreDetectable';
+import { ActionLike } from './ActionLike';
+import { DetectableStore } from './DetectableStore';
 
-const ActionTypes: { INIT: string } = {
+export const ActionTypes: { INIT: string } = {
   INIT: '@@detector/INIT'
 };
 
-export type StoreDetectableEnhancer<S> = (next: StoreEnhancerStoreDetectableCreator<S>) => StoreEnhancerStoreDetectableCreator<S>;
-export type StoreEnhancerStoreDetectableCreator<S> = (reducer: Reducer<S>, preloadedState: S) => StoreDetectable<S>;
+export type StoreDetectableEnhancer<S> = (next: StoreEnhancerStoreCreator<S>) => StoreEnhancerStoreDetectableCreator<S>;
+export type StoreEnhancerStoreDetectableCreator<S> = (reducer: Reducer<S>, preloadedState: S) => DetectableStore<S>;
 
 export function createDetectorEnhancer<S>(detector: Detector<S>): StoreDetectableEnhancer<S> {
+  if (typeof detector !== 'function') {
+    throw new Error('Expected the detector to be a function.');
+  }
+
   return function detectorEnhancer(next: StoreEnhancerStoreCreator<S>): StoreEnhancerStoreDetectableCreator<S> {
-    return function storeDetectableCreator(reducer: Reducer<S>, preloadedState: S): StoreDetectable<S> {
+    return function detectableStoreCreator(reducer: Reducer<S>, preloadedState?: S): DetectableStore<S> {
       // first create basic store
       const store: Store<S> = next(reducer, preloadedState);
 
       // then set initial values in this scope
-      let prevState: S = preloadedState;
+      let prevState: S | undefined = preloadedState;
       let currentDetector: Detector<S> = detector;
 
       // store detectable adds `replaceDetector` method to it's interface
-      const storeDetectable: StoreDetectable<S> = {
+      const detectableStore: DetectableStore<S> = {
         ...store as any, // some bug in typescript object spread operator?
         replaceDetector: function replaceDetector(nextDetector: Detector<S>): void {
           if (typeof nextDetector !== 'function') {
@@ -33,22 +38,24 @@ export function createDetectorEnhancer<S>(detector: Detector<S>): StoreDetectabl
       };
 
       // have to run detector on every state change
-      storeDetectable.subscribe(function detectActions(): void {
-        const nextState: S = storeDetectable.getState();
+      detectableStore.subscribe(function detectActions(): void {
+        const nextState: S = detectableStore.getState();
 
-        // don't set any action type because of compatibility with many redux middlewares (for example redux-thunk)
-        const detectedActions: any[] | void = currentDetector(prevState, nextState);
+        // detect actions by comparing prev and next state
+        const detectedActions: ActionLike | ActionLike[] = currentDetector(prevState, nextState) || [];
 
         // store current state as previous for next subscribe call
         prevState = nextState;
 
         // dispatch all actions returned from detector
-        if (detectedActions && Array === detectedActions.constructor) {
-          detectedActions.forEach(detectedAction => storeDetectable.dispatch(detectedAction));
+        if (Array === detectedActions.constructor) {
+          (detectedActions as ActionLike[]).forEach(detectedAction => detectableStore.dispatch(detectedAction));
+        } else {
+          detectableStore.dispatch(detectedActions as ActionLike);
         }
       });
 
-      return storeDetectable;
+      return detectableStore;
     };
   };
 }

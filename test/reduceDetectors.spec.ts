@@ -29,7 +29,7 @@ describe('reduceDetectors', function () {
   it('check if reduction of two detectors passes states in valid order', function () {
     function detectorA(prevState, nextState) {
       if (prevState > nextState) {
-        return ['PREV_STATE'];
+        return [{type: 'PREV_STATE_GREATER'}];
       }
 
       return [];
@@ -37,7 +37,7 @@ describe('reduceDetectors', function () {
 
     function detectorB(prevState, nextState) {
       if (nextState > prevState) {
-        return ['NEXT_STATE'];
+        return [{type: 'NEXT_STATE_GREATER'}];
       }
 
       return [];
@@ -45,29 +45,46 @@ describe('reduceDetectors', function () {
 
     const detectorAB = reduceDetectors(detectorA, detectorB);
 
-    assert.deepEqual(detectorAB(-10, 50), ['NEXT_STATE']);
-    assert.deepEqual(detectorAB(30, 20), ['PREV_STATE']);
+    assert.deepEqual(detectorAB(-10, 50), [{type: 'NEXT_STATE_GREATER'}]);
+    assert.deepEqual(detectorAB(30, 20), [{type: 'PREV_STATE_GREATER'}]);
   });
 
   it('check if it can reduce detectors with undefined result on no-action detect', function () {
     function detectorA(prevState, nextState) {
       if (prevState > nextState) {
-        return ['PREV_STATE'];
+        return [{type: 'PREV_STATE_GREATER'}];
       }
     }
 
     function detectorB(prevState, nextState) {
       if (nextState > prevState) {
-        return ['NEXT_STATE'];
+        return [{type: 'NEXT_STATE_GREATER'}];
       }
     }
 
     const detectorAB = reduceDetectors(detectorA, detectorB);
 
-    assert.deepEqual(detectorAB(-10, 50), ['NEXT_STATE']);
-    assert.deepEqual(detectorAB(30, 20), ['PREV_STATE']);
+    assert.deepEqual(detectorAB(-10, 50), [{type: 'NEXT_STATE_GREATER'}]);
+    assert.deepEqual(detectorAB(30, 20), [{type: 'PREV_STATE_GREATER'}]);
   });
 
+  it('should allow to combine detectors with array and single result', () => {
+    function detectorA() {
+      return [{type: 'ARRAY_DETECTOR'}];
+    }
+
+    function detectorB(prevState, nextState) {
+      return {type: 'SINGLE_DETECTOR'};
+    }
+
+    const detectorAB = combineDetectors(detectorA, detectorB);
+
+    assert.deepEqual(detectorAB(undefined, undefined), [{type: 'ARRAY_DETECTOR'}, {type: 'SINGLE_DETECTOR'}]);
+  });
+
+  it('should throw an exception for call with invalid argument', () => {
+    assert.throws(() => { (combineDetectors as any)({ 'foo': 'bar' }); }, Error);
+    assert.throws(() => { (combineDetectors as any)([function() {}, undefined]); }, Error);
   it('check if it can return valid reduced detector for empty arguments', function() {
     const emptyDetector = reduceDetectors();
 
