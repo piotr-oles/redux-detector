@@ -1,7 +1,7 @@
 import { Detector } from './Detector';
 import { ActionLike } from './ActionLike';
 
-export function reduceDetectors<S, A>(...detectors: Detector<S>[]): Detector<S> {
+export function reduceDetectors<S>(...detectors: Detector<S>[]): Detector<S> {
   // check detectors types in runtime
   const invalidDetectorsIndexes: number[] = detectors
     .map((detector, index) => detector instanceof Function ? -1 : index)
@@ -15,8 +15,7 @@ export function reduceDetectors<S, A>(...detectors: Detector<S>[]): Detector<S> 
     );
   }
 
-  return function reducedDetector(prevState: S, nextState: S): A[] {
-  return function combinedDetector(prevState: S, nextState: S): ActionLike[] {
+  return function reducedDetector(prevState: S, nextState: S): ActionLike[] {
     return detectors
       .map(detector => detector(prevState, nextState) || [])
       .reduce<ActionLike[]>((actions: ActionLike[], nextActions: ActionLike | ActionLike[]) => actions.concat(nextActions), []);
