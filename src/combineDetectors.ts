@@ -1,23 +1,34 @@
 import { Detector } from './Detector';
 import { ActionLike } from './ActionLike';
+import { DetectorsMap } from './DetectorsMap';
 
-export function combineDetectors<S>(...detectors: Detector<S>[]): Detector<S> {
-  // check detectors type in runtime
-  const invalidDetectorsIndexes: number[] = detectors
-    .map((detector, index) => detector instanceof Function ? -1 : index)
-    .filter(index => index !== -1);
+/**
+ * Combine detectors to bind them to the local state.
+ * It allows to create reusable detectors.
+ *
+ * @param map Map of detectors bounded to state.
+ * @returns Combined detector
+ */
+export function combineDetectors<S>(map: DetectorsMap<S>): Detector<S> {
+  return function combinedDetector(prevState: S | undefined, nextState: S): ActionLike[] {
+    return Object.keys(map).reduce(
+      (reducedActions: ActionLike[], key: keyof S) => {
+        let actions: ActionLike | ActionLike[] | void = map[key]!(
+          prevState ? prevState[key] : undefined,
+          nextState[key]
+        );
 
-  if (invalidDetectorsIndexes.length) {
-    throw new Error(
-      `Invalid arguments: ${invalidDetectorsIndexes.join(', ')} in combineDetectors call.\n` +
-      `Detectors should be a 'function' type, ` +
-      `'${invalidDetectorsIndexes.map(index => typeof detectors[index]).join(`', '`)}' types passed.`
+        if (actions) {
+          if (actions.constructor !== Array) {
+            actions = [actions as ActionLike];
+          }
+
+          reducedActions = reducedActions.concat(...(actions as ActionLike[]));
+        }
+
+        return reducedActions;
+      },
+      []
     );
-  }
-
-  return function combinedDetector(prevState: S, nextState: S): ActionLike[] {
-    return detectors
-      .map(detector => detector(prevState, nextState) || [])
-      .reduce<ActionLike[]>((actions: ActionLike[], nextActions: ActionLike | ActionLike[]) => actions.concat(nextActions), []);
   };
 }

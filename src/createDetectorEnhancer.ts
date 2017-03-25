@@ -10,6 +10,12 @@ export const ActionTypes: { INIT: string } = {
 export type StoreDetectableEnhancer<S> = (next: StoreEnhancerStoreCreator<S>) => StoreEnhancerStoreDetectableCreator<S>;
 export type StoreEnhancerStoreDetectableCreator<S> = (reducer: Reducer<S>, preloadedState: S) => DetectableStore<S>;
 
+/**
+ * Creates detector enhancer that modifies redux store to use it with provided detector.
+ *
+ * @param detector Root detector
+ * @returns Store enhancer
+ */
 export function createDetectorEnhancer<S>(detector: Detector<S>): StoreDetectableEnhancer<S> {
   if (typeof detector !== 'function') {
     throw new Error('Expected the detector to be a function.');
