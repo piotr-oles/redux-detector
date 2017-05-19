@@ -4,7 +4,6 @@ export { DetectableStore } from './DetectableStore';
 
 // enhance redux store
 export { createDetectorEnhancer } from './createDetectorEnhancer';
-export { createDetectableStore } from './createDetectableStore';
 
 // reduce detectors
 export { reduceDetectors } from './reduceDetectors';

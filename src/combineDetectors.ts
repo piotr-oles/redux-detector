@@ -1,5 +1,4 @@
 import { Detector } from './Detector';
-import { ActionLike } from './ActionLike';
 import { DetectorsMap } from './DetectorsMap';
 
 /**
@@ -10,20 +9,20 @@ import { DetectorsMap } from './DetectorsMap';
  * @returns Combined detector
  */
 export function combineDetectors<S>(map: DetectorsMap<S>): Detector<S> {
-  return function combinedDetector(prevState: S | undefined, nextState: S): ActionLike[] {
+  return function combinedDetector(prevState: S | undefined, nextState: S): any[] {
     return Object.keys(map).reduce(
-      (reducedActions: ActionLike[], key: keyof S) => {
-        let actions: ActionLike | ActionLike[] | void = map[key]!(
+      (reducedActions: any[], key: keyof S) => {
+        let actions: any | any[] | void = map[key]!(
           prevState ? prevState[key] : undefined,
           nextState[key]
         );
 
         if (actions) {
           if (actions.constructor !== Array) {
-            actions = [actions as ActionLike];
+            actions = [actions];
           }
 
-          reducedActions = reducedActions.concat(...(actions as ActionLike[]));
+          reducedActions = reducedActions.concat(...actions);
         }
 
         return reducedActions;

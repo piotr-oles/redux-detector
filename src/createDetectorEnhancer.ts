@@ -1,6 +1,5 @@
 import { StoreEnhancerStoreCreator, Store, Reducer } from 'redux';
 import { Detector } from './Detector';
-import { ActionLike } from './ActionLike';
 import { DetectableStore } from './DetectableStore';
 
 export const ActionTypes: { INIT: string } = {
@@ -48,16 +47,16 @@ export function createDetectorEnhancer<S>(detector: Detector<S>): StoreDetectabl
         const nextState: S = detectableStore.getState();
 
         // detect actions by comparing prev and next state
-        const detectedActions: ActionLike | ActionLike[] = currentDetector(prevState, nextState) || [];
+        const detectedActions: any | any[] = currentDetector(prevState, nextState) || [];
 
         // store current state as previous for next subscribe call
         prevState = nextState;
 
         // dispatch all actions returned from detector
         if (Array === detectedActions.constructor) {
-          (detectedActions as ActionLike[]).forEach(detectedAction => detectableStore.dispatch(detectedAction));
+          (detectedActions as any[]).forEach(detectedAction => detectableStore.dispatch(detectedAction));
         } else {
-          detectableStore.dispatch(detectedActions as ActionLike);
+          detectableStore.dispatch(detectedActions);
         }
       });
 

@@ -16,24 +16,12 @@ This assumes that you’re using [npm](http://npmjs.com/) package manager with a
 [Webpack](http://webpack.github.io/) or [Browserify](http://browserify.org/) to consume 
 [CommonJS modules](http://webpack.github.io/docs/commonjs.html).
 
-To enable Redux Detector, use `createDetectableStore`:
-```js
-import { createDetectableStore } from 'redux-detector';
-import rootReducer from './reducers/index';
-import rootDetector from './detectors/index';
-
-const store = createDetectableStore(
-  rootReducer,
-  rootDetector
-);
-```
- 
-or if you have more complicated store creation, use `createStore` with `createDetectorEnhancer`:
+To enable Redux Detector, use `createDetectorEnhancer`:
 ```js
 import { createStore } from 'redux';
 import { createDetectorEnhancer } from 'redux-detector';
-import rootReducer from './reducers/index';
-import rootDetector from './detectors/index';
+import rootReducer from './reducers';
+import rootDetector from './detectors';
 
 const store = createStore(
   rootReducer,
@@ -42,11 +30,10 @@ const store = createStore(
 ```
 
 ## Motivation ##
-Redux Detector [enhancer](http://redux.js.org/docs/api/createStore.html) allows you to use state changes detectors with redux. 
-Detector is a simple and pure function which compares two states and returns action or list of actions for some states configurations.
-It can be used for reacting on particular state transitions.
+Redux Detector [enhancer](http://redux.js.org/docs/api/createStore.html) allows you to detect state changes in redux. 
+A detector is a simple and pure function which compares two states and returns action or list of actions for some states transitions.
 ```typescript
-type Detector<S> = (prevState: S | undefined, nextState: S) => ActionLike | ActionLike[] | void;
+type Detector<S> = (prevState: S | undefined, nextState: S) => Action | Action[] | void;
 ```
 
 For example detector that checks if number of rows exceed 100 looks like this:
@@ -57,7 +44,7 @@ function rowsLimitExceededDetector(prevState, nextState) {
   }
 }
 ```
-You can also return array of actions or nothing (undefined).
+You can also return an array of actions or nothing (undefined).
 Thanks to detectors purity they are predictable and easy to test. There is no problem with features like time-travel, etc.
 
 ## Composition ##
@@ -88,8 +75,8 @@ export default combineDetectors({
 });
 ```
 
-Another way to re-use local state detectors is to mount them with `mountDetector` function. Combine detectors works only on objects level - 
-if you want to use detectors on more nested data, you should mount them. With factory pattern it becomes very elastic.
+Another way to re-use local state detectors is to mount them with `mountDetector` function. Combine detectors work only on objects level - 
+if you want to use detectors on more nested data, you should mount them. With factory pattern, it becomes very elastic.
 ```js
 // ./detectors/limitExceedDetector.js
 export function createLimitExceedDetector(limit, action) {
@@ -109,8 +96,8 @@ export const rowsLimitExceedDetector = mountDetector(
   createLimitExceedDetector(100, ROWS_LIMIT_EXCEEDED)
 );
 ```
-Of course examples above are very trivial, but you can use it to solve more common problems 
-(you can for example schedule resource fetch on parameters change).
+Of course, examples above are very trivial, but you can use it to solve more common problems 
+(you can, for example, schedule resource fetch on parameters change).
 
 ## Code Splitting ##
 Redux Detector provides `replaceDetector` method on `DetectableStore` interface (store created by Redux Detector). It's similar to
