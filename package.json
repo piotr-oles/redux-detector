@@ -1,6 +1,6 @@
 {
   "name": "redux-detector",
-  "version": "0.6.0-1",
+  "version": "0.6.1",
   "description": "Redux enhancer for pure detection of state changes.",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -34,10 +34,10 @@
   },
   "devDependencies": {
     "@types/mocha": "^2.2.41",
-    "chai": "^3.5.0",
+    "chai": "^4.0.2",
     "chai-spies": "^0.7.1",
     "coveralls": "^2.13.1",
-    "cross-env": "^3.1.4",
+    "cross-env": "^5.0.1",
     "karma": "^1.7.0",
     "karma-chai": "^0.1.0",
     "karma-cli": "^1.0.1",
@@ -47,14 +47,14 @@
     "karma-typescript": "^3.0.2",
     "karma-webpack": "^2.0.3",
     "lodash": "^4.17.4",
-    "mocha": "^3.4.1",
+    "mocha": "^3.4.2",
     "redux": "^3.1.0",
-    "rimraf": "^2.5.4",
-    "ts-loader": "^2.0.3",
-    "tslint": "^5.2.0",
+    "rimraf": "^2.6.1",
+    "ts-loader": "^2.1.0",
+    "tslint": "^5.4.3",
     "tslint-loader": "^3.5.3",
-    "typescript": "^2.3.2",
-    "webpack": "^2.5.1"
+    "typescript": "^2.3.4",
+    "webpack": "^2.6.1"
   },
   "peerDependencies": {
     "redux": "^3.1.0"

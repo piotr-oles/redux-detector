@@ -33,7 +33,7 @@ const store = createStore(
 Redux Detector [enhancer](http://redux.js.org/docs/api/createStore.html) allows you to detect state changes in redux. 
 A detector is a simple and pure function which compares two states and returns action or list of actions for some states transitions.
 ```typescript
-type Detector<S> = (prevState: S | undefined, nextState: S) => Action | Action[] | void;
+type Detector<S> = (prevState: S | undefined, nextState: S | undefined) => Action | Action[] | void;
 ```
 
 For example detector that checks if number of rows exceed 100 looks like this:

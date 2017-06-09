@@ -17,6 +17,8 @@ describe('combineDetectors', function () {
     assert.isFunction(detector);
     assert.deepEqual([], detector({}, {}));
     assert.deepEqual([], detector(undefined, {}));
+    assert.deepEqual([], detector(undefined, undefined));
+    assert.deepEqual([], detector({}, undefined));
   });
 
   it('should return detector that binds detectors to local state', function () {
@@ -65,6 +67,8 @@ describe('combineDetectors', function () {
 
     assert.deepEqual([], detector({}, {}));
     assert.deepEqual([], detector(undefined, {}));
+    assert.deepEqual([], detector(undefined, undefined));
+    assert.deepEqual([], detector({}, undefined));
     assert.deepEqual(
       [
         { type: 'A_TO_B_TRANSITION' },
