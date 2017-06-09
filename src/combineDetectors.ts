@@ -9,12 +9,12 @@ import { DetectorsMap } from './DetectorsMap';
  * @returns Combined detector
  */
 export function combineDetectors<S>(map: DetectorsMap<S>): Detector<S> {
-  return function combinedDetector(prevState: S | undefined, nextState: S): any[] {
+  return function combinedDetector(prevState: S | undefined, nextState: S | undefined): any[] {
     return Object.keys(map).reduce(
       (reducedActions: any[], key: keyof S) => {
         let actions: any | any[] | void = map[key]!(
           prevState ? prevState[key] : undefined,
-          nextState[key]
+          nextState ? nextState[key] : undefined
         );
 
         if (actions) {
