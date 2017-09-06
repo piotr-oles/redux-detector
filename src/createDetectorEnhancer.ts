@@ -28,6 +28,7 @@ export function createDetectorEnhancer<S>(detector: Detector<S>): StoreDetectabl
       // then set initial values in this scope
       let prevState: S | undefined = preloadedState;
       let currentDetector: Detector<S> = detector;
+      let isDispatchingDetected: boolean = false;
 
       // store detectable adds `replaceDetector` method to it's interface
       const detectableStore: DetectableStore<S> = {
@@ -44,6 +45,10 @@ export function createDetectorEnhancer<S>(detector: Detector<S>): StoreDetectabl
 
       // have to run detector on every state change
       detectableStore.subscribe(function detectActions(): void {
+        if (isDispatchingDetected) {
+          return;
+        }
+
         const nextState: S = detectableStore.getState();
 
         // detect actions by comparing prev and next state
@@ -54,7 +59,19 @@ export function createDetectorEnhancer<S>(detector: Detector<S>): StoreDetectabl
 
         // dispatch all actions returned from detector
         if (Array === detectedActions.constructor) {
-          (detectedActions as any[]).forEach(detectedAction => detectableStore.dispatch(detectedAction));
+          // if we have n action, we aggregate n-1 detected actions before next detect
+          const aggregatedDetectedActions: any[] = (detectedActions as any[]).slice();
+
+          // aggregatedDetectedActions array is not used anywhere else so we can safely call .pop()
+          const lastDetectedAction: any = aggregatedDetectedActions.pop();
+
+          isDispatchingDetected = true;
+          (aggregatedDetectedActions as any[]).forEach(detectedAction => detectableStore.dispatch(detectedAction));
+          isDispatchingDetected = false;
+
+          if (lastDetectedAction) {
+            detectableStore.dispatch(lastDetectedAction);
+          }
         } else {
           detectableStore.dispatch(detectedActions);
         }
