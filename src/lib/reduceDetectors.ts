@@ -1,4 +1,4 @@
-import { Detector } from './Detector';
+import { Detector } from '../Detector';
 
 export function reduceDetectors<S>(...detectors: Detector<S>[]): Detector<S> {
   // check detectors types in runtime
@@ -14,7 +14,7 @@ export function reduceDetectors<S>(...detectors: Detector<S>[]): Detector<S> {
     );
   }
 
-  return function reducedDetector(prevState: S, nextState: S): any[] {
+  return function reducedDetector(prevState: S | undefined, nextState: S | undefined): any[] {
     return detectors
       .map(detector => detector(prevState, nextState) || [])
       .reduce((actions, nextActions) => actions.concat(nextActions), []);

@@ -19,6 +19,6 @@ jspm_packages
 # IDEA directory
 .idea
 
-# Lib and dist directory
+### Rollup
 /lib
-/dist
+.rpt2_cache

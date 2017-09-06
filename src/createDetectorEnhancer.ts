@@ -1,13 +1,16 @@
-import { StoreEnhancerStoreCreator, Store, Reducer } from 'redux';
-import { Detector } from './Detector';
-import { DetectableStore } from './DetectableStore';
+import { Reducer, Store, StoreEnhancer } from "redux";
+import { DetectableStore } from "./DetectableStore";
+import { DetectableStoreExt } from "./DetectableStoreExt";
+import { Detector } from "./Detector";
 
 export const ActionTypes: { INIT: string } = {
-  INIT: '@@detector/INIT'
+  INIT: "@@detector/INIT"
 };
 
-export type StoreDetectableEnhancer<S> = (next: StoreEnhancerStoreCreator<S>) => StoreEnhancerStoreDetectableCreator<S>;
-export type StoreEnhancerStoreDetectableCreator<S> = (reducer: Reducer<S>, preloadedState: S) => DetectableStore<S>;
+export type StoreDetectableEnhancer<S> = StoreEnhancer<
+  DetectableStoreExt<S>,
+  {}
+>;
 
 /**
  * Creates detector enhancer that modifies redux store to use it with provided detector.
@@ -15,28 +18,35 @@ export type StoreEnhancerStoreDetectableCreator<S> = (reducer: Reducer<S>, prelo
  * @param detector Root detector
  * @returns Store enhancer
  */
-export function createDetectorEnhancer<S>(detector: Detector<S>): StoreDetectableEnhancer<S> {
-  if (typeof detector !== 'function') {
-    throw new Error('Expected the detector to be a function.');
+export function createDetectorEnhancer<S = any>(
+  detector: Detector<S>
+): StoreDetectableEnhancer<S> {
+  if (typeof detector !== "function") {
+    throw new Error("Expected the detector to be a function.");
   }
 
-  return function detectorEnhancer(next: StoreEnhancerStoreCreator<S>): StoreEnhancerStoreDetectableCreator<S> {
-    return function detectableStoreCreator(reducer: Reducer<S>, preloadedState?: S): DetectableStore<S> {
+  return function detectorEnhancer(next) {
+    return function detectableStoreCreator(
+      reducer: Reducer<any, any>,
+      preloadedState?: any
+    ): DetectableStore<any, any> {
       // first create basic store
-      const store: Store<S> = next(reducer, preloadedState);
+      const store = next(reducer, preloadedState);
 
       // then set initial values in this scope
-      let prevState: S | undefined = preloadedState;
-      let currentDetector: Detector<S> = detector;
-      let isDispatchingFromQueue: boolean = false;
+      let prevState = preloadedState;
+      let currentDetector = detector;
+      let isDispatchingFromQueue = false;
       let actionsQueue: any[] = [];
 
       // store detectable adds `replaceDetector` method to it's interface
-      const detectableStore: DetectableStore<S> = {
-        ...store as any, // some bug in typescript object spread operator?
-        replaceDetector: function replaceDetector(nextDetector: Detector<S>): void {
-          if (typeof nextDetector !== 'function') {
-            throw new Error('Expected the nextDetector to be a function.');
+      const detectableStore: DetectableStore<any, any> = {
+        ...store,
+        replaceDetector: function replaceDetector(
+          nextDetector: Detector<any>
+        ): void {
+          if (typeof nextDetector !== "function") {
+            throw new Error("Expected the nextDetector to be a function.");
           }
 
           currentDetector = nextDetector;
@@ -49,10 +59,14 @@ export function createDetectorEnhancer<S>(detector: Detector<S>): StoreDetectabl
         const nextState: S = detectableStore.getState();
 
         // detect actions by comparing prev and next state
-        let detectedActions: any | any[] = currentDetector(prevState, nextState) || [];
+        let detectedActions: any | any[] =
+          currentDetector(prevState, nextState) || [];
 
         // convert to array
-        detectedActions = (Array === detectedActions.constructor) ? detectedActions : [detectedActions];
+        detectedActions =
+          Array === detectedActions.constructor
+            ? detectedActions
+            : [detectedActions];
 
         // add to the actions queue
         actionsQueue = actionsQueue.concat(detectedActions);

@@ -1,45 +1,52 @@
 
-import { assert } from 'chai';
-import { mountDetector } from '../src/index';
+import { mountDetector } from '../src';
 
 describe('mountDetector', () => {
 
   it('should export mountDetector function', () => {
-    assert.isFunction(mountDetector);
+    expect(mountDetector).toBeInstanceOf(Function);
   });
 
   it('should mount detector using selector', () => {
-    const prevState = {
+    interface State {
       branchA: {
         subBranchB: {
-          value: 1
+          value: number;
         }
       }
-    };
-    const nextState = {
-      branchA: {
-        subBranchB: {
-          value: 5
-        }
-      }
-    };
-    function detector(prevState, nextState) {
+    }
+    function detector(prevState?: State['branchA']['subBranchB'], nextState?: State['branchA']['subBranchB']) {
       if (prevState && prevState.value === 1 && nextState && nextState.value === 5) {
         return [{type: 'SELECTORS_WORKED'}];
       }
     }
-    function selector(state) {
-      return state.branchA.subBranchB;
+    function selector(state: State | undefined) {
+      return state!.branchA.subBranchB;
     }
 
     const mountedDetector = mountDetector(selector, detector);
 
-    assert.isFunction(mountedDetector);
+    expect(mountedDetector).toBeInstanceOf(Function);
 
-    const detectedActions = mountedDetector(prevState, nextState);
+    const detectedActions = mountedDetector(
+      {
+        branchA: {
+          subBranchB: {
+            value: 1
+          }
+        }
+      },
+      {
+        branchA: {
+          subBranchB: {
+            value: 5
+          }
+        }
+      }
+    );
 
-    assert.isArray(detectedActions);
-    assert.deepEqual(detectedActions, [{ type: 'SELECTORS_WORKED' }]);
+    expect(detectedActions).toBeInstanceOf(Array);
+    expect(detectedActions).toEqual([{ type: 'SELECTORS_WORKED' }]);
   });
 
 });

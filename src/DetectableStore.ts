@@ -1,9 +1,7 @@
-import { Store } from 'redux';
-import { Detector } from './Detector';
+import {Action, AnyAction, Store} from 'redux';
+import {DetectableStoreExt} from "./DetectableStoreExt";
 
 /**
  * Store enhanced by detector enhancer.
  */
-export interface DetectableStore<S> extends Store<S> {
-  replaceDetector(nextDetector: Detector<S>): void;
-}
+export type DetectableStore<S = any, A extends Action = AnyAction> = Store<S, A> & DetectableStoreExt<S>;

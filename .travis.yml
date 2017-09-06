@@ -1,11 +1,11 @@
-language: node_js
-after_success: npm run coveralls
-deploy:
-  provider: npm
-  skip_cleanup: true
-  email: piotrek.oles@gmail.com
-  api_key:
-    secure: PU6fO58CvEZtKIPCF/FmAGIsnwsWFPr9sTnzr0HuIo141gbUUp10azdLBVGyopd0R1QCg7B9KBhCViUjTwYwI2+Ej8Ibjr211PzuIsFUdGpkNojuFNQE2yKPXnJ+qXIeOmzKsBAGL7MslUdYNYLB8sWkLBZbnCYO9HAh0pEVUUsSgFbpooL3y1g0pW/3a3Va9zV0P5aZmbSogmcYRYLqsFnTs8sfieNV2xjHQ9inDs14t8CLH5SAeqDb40vDoPeu7NSGDAZPQityLLTpAbElVm/E1/0FS0cC+Ba57oJpj6ngpG/DOrKVglO8NKou84SsKEqEA854GenGh/DVTUdHfvL1QlcFHr8Dl0U87WWEpp4DMr72q4jDsDoJO4FicnwwPZdn1dxqcjf7gQHXwX8m2oHFcxyVACM9xMel/hEloZnn7AqDyZg8LPEvir6CulGp2wxrHUDP2RbsXduas6hPpatU/dcSfO3oCuJaTWswAteA4ExG0725sZ7Vabq9zrvVFXo4Hx90B2zNc1sezHkYpsHP5L43aDKPsd3QzyhdBcGTHUDlt4wWzFL/mqcRADAOHjRX2HqZLbe+jHTDPDEeYxs4QdGdaWxnmfHz10IJ7HF9Moho9jtVvzNsCG1qewZRb6d0scjsueQh0NNiWjUrYcv660if/1YqGApcOubYDLU=
-  on:
-    tags: true
-    branch: master
+#language: node_js
+#after_success: npm run coveralls
+#deploy:
+#  provider: npm
+#  skip_cleanup: true
+#  email: piotrek.oles@gmail.com
+#  api_key:
+#    secure: PU6fO58CvEZtKIPCF/FmAGIsnwsWFPr9sTnzr0HuIo141gbUUp10azdLBVGyopd0R1QCg7B9KBhCViUjTwYwI2+Ej8Ibjr211PzuIsFUdGpkNojuFNQE2yKPXnJ+qXIeOmzKsBAGL7MslUdYNYLB8sWkLBZbnCYO9HAh0pEVUUsSgFbpooL3y1g0pW/3a3Va9zV0P5aZmbSogmcYRYLqsFnTs8sfieNV2xjHQ9inDs14t8CLH5SAeqDb40vDoPeu7NSGDAZPQityLLTpAbElVm/E1/0FS0cC+Ba57oJpj6ngpG/DOrKVglO8NKou84SsKEqEA854GenGh/DVTUdHfvL1QlcFHr8Dl0U87WWEpp4DMr72q4jDsDoJO4FicnwwPZdn1dxqcjf7gQHXwX8m2oHFcxyVACM9xMel/hEloZnn7AqDyZg8LPEvir6CulGp2wxrHUDP2RbsXduas6hPpatU/dcSfO3oCuJaTWswAteA4ExG0725sZ7Vabq9zrvVFXo4Hx90B2zNc1sezHkYpsHP5L43aDKPsd3QzyhdBcGTHUDlt4wWzFL/mqcRADAOHjRX2HqZLbe+jHTDPDEeYxs4QdGdaWxnmfHz10IJ7HF9Moho9jtVvzNsCG1qewZRb6d0scjsueQh0NNiWjUrYcv660if/1YqGApcOubYDLU=
+#  on:
+#    tags: true
+#    branch: master
