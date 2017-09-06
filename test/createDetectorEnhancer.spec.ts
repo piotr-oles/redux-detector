@@ -3,6 +3,7 @@ import * as chai from 'chai';
 import * as spies from 'chai-spies';
 import { assert, expect } from 'chai';
 import { createDetectorEnhancer } from '../src/index';
+import { createStore } from 'redux';
 
 chai.use(spies);
 
@@ -27,7 +28,7 @@ describe('createDetectableStore', () => {
       return [];
     }
     const dumbState = {};
-    function createStore() {
+    function createMockStore() {
       return {
         dispatch: () => {},
         subscribe: chai.spy(),
@@ -35,7 +36,7 @@ describe('createDetectableStore', () => {
         replaceReducer: () => {}
       };
     }
-    const createStoreSpy = chai.spy(createStore);
+    const createStoreSpy = chai.spy(createMockStore);
     const detectorEnhancer = createDetectorEnhancer(dumbDetector);
 
     assert.isFunction(detectorEnhancer);
@@ -69,7 +70,7 @@ describe('createDetectableStore', () => {
     }
     const states = [0];
     const subscribed = [];
-    function createStore() {
+    function createMockStore() {
       return {
         dispatch: chai.spy(),
         subscribe: (listener) => {
@@ -86,7 +87,7 @@ describe('createDetectableStore', () => {
     }
     const nextDetectorSpy = chai.spy(nextDetector);
     const detectorEnhancer = createDetectorEnhancer(dumbDetector);
-    const createDetectableStore = detectorEnhancer(createStore);
+    const createDetectableStore = detectorEnhancer(createMockStore);
     const detectableStore = createDetectableStore(dumbReducer, states[0]);
     assert.lengthOf(subscribed, 1);
 
@@ -113,7 +114,7 @@ describe('createDetectableStore', () => {
     }
     const dumbState = {};
     const subscribed = [];
-    function createStore() {
+    function createMockStore() {
       return {
         dispatch: chai.spy(),
         subscribe: (listener) => {
@@ -125,7 +126,7 @@ describe('createDetectableStore', () => {
       };
     }
     const detectorEnhancer = createDetectorEnhancer(singleDetector);
-    const createDetectableStore = detectorEnhancer(createStore);
+    const createDetectableStore = detectorEnhancer(createMockStore);
     const detectableStore = createDetectableStore(dumbReducer, dumbState);
 
     assert.lengthOf(subscribed, 1);
@@ -143,7 +144,7 @@ describe('createDetectableStore', () => {
     }
     const states = [0];
     const subscribed = [];
-    function createStore() {
+    function createMockStore() {
       return {
         dispatch: chai.spy(),
         subscribe: (listener) => {
@@ -160,7 +161,7 @@ describe('createDetectableStore', () => {
     }
     const dumbDetectorSpy = chai.spy(dumbDetector);
     const detectorEnhancer = createDetectorEnhancer(dumbDetectorSpy);
-    const createDetectableStore = detectorEnhancer(createStore);
+    const createDetectableStore = detectorEnhancer(createMockStore);
     const detectableStore = createDetectableStore(dumbReducer, states[0]);
     assert.lengthOf(subscribed, 1);
 
@@ -187,7 +188,7 @@ describe('createDetectableStore', () => {
     }
     const dumbState = {};
     const subscribed = [];
-    function createStore() {
+    function createMockStore() {
       return {
         dispatch: chai.spy(),
         subscribe: (listener) => {
@@ -199,7 +200,7 @@ describe('createDetectableStore', () => {
       };
     }
     const detectorEnhancer = createDetectorEnhancer(scopedDetector);
-    const createDetectableStore = detectorEnhancer(createStore);
+    const createDetectableStore = detectorEnhancer(createMockStore);
     const detectableStore = createDetectableStore(dumbReducer, dumbState);
 
     assert.lengthOf(subscribed, 1);
@@ -209,5 +210,59 @@ describe('createDetectableStore', () => {
 
     subscribed[0]();
     expect(detectableStore.dispatch).to.not.have.been.called;
+  });
+
+  it('should create store that dispatches actions from detector in chronological order', () => {
+    const reducerHistory = [];
+    const detectorHistory = [];
+
+    const incrementBy = (number) => ({ type: 'INCREMENT', payload: number });
+    const multiplyBy = (number) => ({ type: 'MULTIPLY', payload: number });
+
+    const reducer = (counter = 0, action) => {
+      reducerHistory.push([action.type, action.payload]);
+
+      switch (action.type) {
+        case 'INCREMENT':
+          return counter + action.payload;
+        case 'MULTIPLY':
+          return counter * action.payload;
+        default:
+          return counter;
+      }
+    };
+    const detector = (prevCounter, nextCounter) => {
+      detectorHistory.push([prevCounter, nextCounter]);
+
+      // when counter == 1
+      if (prevCounter !== nextCounter && nextCounter === 1) {
+        return [incrementBy(1), multiplyBy(2)];
+      }
+      // when counter == 2
+      if (prevCounter !== nextCounter && nextCounter === 2) {
+        return incrementBy(1);
+      }
+      // when counter == 4
+      if (prevCounter !== nextCounter && nextCounter === 4) {
+        return incrementBy(1);
+      }
+    };
+
+    const counterStore = createStore(reducer, 0, createDetectorEnhancer(detector));
+    counterStore.dispatch(incrementBy(1));
+
+    expect(reducerHistory).to.be.deep.equals([
+      ['@@redux/INIT', undefined], // 0
+      ['INCREMENT', 1], // 1
+      ['INCREMENT', 1], // 2
+      ['MULTIPLY', 2], // 4
+      ['INCREMENT', 1], // 5
+    ]);
+    expect(detectorHistory).to.be.deep.equals([
+      [0, 1],
+      [1, 4],
+      [4, 5]
+    ]);
+    expect(counterStore.getState()).to.be.equals(5);
   });
 });
