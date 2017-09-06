@@ -242,10 +242,6 @@ describe('createDetectableStore', () => {
       if (prevCounter !== nextCounter && nextCounter === 2) {
         return incrementBy(1);
       }
-      // when counter == 4
-      if (prevCounter !== nextCounter && nextCounter === 4) {
-        return incrementBy(1);
-      }
     };
 
     const counterStore = createStore(reducer, 0, createDetectorEnhancer(detector));
@@ -260,7 +256,8 @@ describe('createDetectableStore', () => {
     ]);
     expect(detectorHistory).to.be.deep.equals([
       [0, 1],
-      [1, 4],
+      [1, 2],
+      [2, 4],
       [4, 5]
     ]);
     expect(counterStore.getState()).to.be.equals(5);

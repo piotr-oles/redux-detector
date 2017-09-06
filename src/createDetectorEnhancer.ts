@@ -28,7 +28,8 @@ export function createDetectorEnhancer<S>(detector: Detector<S>): StoreDetectabl
       // then set initial values in this scope
       let prevState: S | undefined = preloadedState;
       let currentDetector: Detector<S> = detector;
-      let isDispatchingDetected: boolean = false;
+      let isDispatchingFromQueue: boolean = false;
+      let actionsQueue: any[] = [];
 
       // store detectable adds `replaceDetector` method to it's interface
       const detectableStore: DetectableStore<S> = {
@@ -45,35 +46,27 @@ export function createDetectorEnhancer<S>(detector: Detector<S>): StoreDetectabl
 
       // have to run detector on every state change
       detectableStore.subscribe(function detectActions(): void {
-        if (isDispatchingDetected) {
-          return;
-        }
-
         const nextState: S = detectableStore.getState();
 
         // detect actions by comparing prev and next state
-        const detectedActions: any | any[] = currentDetector(prevState, nextState) || [];
+        let detectedActions: any | any[] = currentDetector(prevState, nextState) || [];
+
+        // convert to array
+        detectedActions = (Array === detectedActions.constructor) ? detectedActions : [detectedActions];
+
+        // add to the actions queue
+        actionsQueue = actionsQueue.concat(detectedActions);
 
         // store current state as previous for next subscribe call
         prevState = nextState;
 
-        // dispatch all actions returned from detector
-        if (Array === detectedActions.constructor) {
-          // if we have n action, we aggregate n-1 detected actions before next detect
-          const aggregatedDetectedActions: any[] = (detectedActions as any[]).slice();
-
-          // aggregatedDetectedActions array is not used anywhere else so we can safely call .pop()
-          const lastDetectedAction: any = aggregatedDetectedActions.pop();
-
-          isDispatchingDetected = true;
-          (aggregatedDetectedActions as any[]).forEach(detectedAction => detectableStore.dispatch(detectedAction));
-          isDispatchingDetected = false;
-
-          if (lastDetectedAction) {
-            detectableStore.dispatch(lastDetectedAction);
+        // dispatch actions for action queue
+        if (isDispatchingFromQueue === false && actionsQueue.length > 0) {
+          isDispatchingFromQueue = true;
+          while (actionsQueue.length > 0) {
+            detectableStore.dispatch(actionsQueue.shift());
           }
-        } else {
-          detectableStore.dispatch(detectedActions);
+          isDispatchingFromQueue = false;
         }
       });
 
