@@ -1,6 +1,6 @@
 {
   "name": "redux-detector",
-  "version": "0.7.0",
+  "version": "0.0.0-semantic-release",
   "description": "Redux enhancer for pure detection of state changes.",
   "keywords": [
     "detector",
@@ -17,6 +17,9 @@
     "type": "git",
     "url": "https://github.com/piotr-oles/redux-detector.git"
   },
+  "files": [
+    "lib"
+  ],
   "license": "MIT",
   "author": "Piotr Oleś <piotrek.oles@gmail.com>",
   "main": "lib/index.js",
@@ -24,12 +27,12 @@
   "types": "lib/index.d.ts",
   "scripts": {
     "build": "rimraf lib && rollup -c",
-    "clean": "rimraf lib coverage",
     "precommit": "lint-staged && yarn build && yarn test",
     "commit": "yarn exec git-cz",
     "format": "prettier --write \"src/**/*\"",
     "lint": "tslint --project tsconfig.json",
-    "test": "jest"
+    "test": "jest",
+    "semantic-release": "semantic-release"
   },
   "husky": {
     "hooks": {
@@ -89,7 +92,8 @@
     "tslint": "^5.12.0",
     "tslint-config-prettier": "^1.18.0",
     "tslint-loader": "^3.5.4",
-    "typescript": "^3.4.3"
+    "typescript": "^3.4.3",
+    "semantic-release": "^15.13.3"
   },
   "peerDependencies": {
     "redux": "^3.1.0 || ^4.0.0"
