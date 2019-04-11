@@ -1,27 +1,28 @@
+import { AnyAction, createStore, Store } from "redux";
+import { createDetectorEnhancer } from "../src";
 
-import * as chai from 'chai';
-import * as spies from 'chai-spies';
-import { assert, expect } from 'chai';
-import { createDetectorEnhancer } from '../src/index';
-import { createStore } from 'redux';
-
-chai.use(spies);
-
-describe('createDetectableStore', () => {
-
-  it('should export createDetectorEnhancer function', () => {
-    assert.isFunction(createDetectorEnhancer);
+describe("createDetectorEnhancer", () => {
+  it("should export createDetectorEnhancer function", () => {
+    expect(createDetectorEnhancer).toBeInstanceOf(Function);
   });
 
-  it('should throw an exception if detector is not a function', () => {
-    assert.throws(() => { (createDetectorEnhancer as any)(undefined); }, Error);
-    assert.throws(() => { (createDetectorEnhancer as any)(123); }, Error);
-    assert.throws(() => { (createDetectorEnhancer as any)({}); }, Error);
-    assert.throws(() => { (createDetectorEnhancer as any)([]); }, Error);
+  it("should throw an exception if detector is not a function", () => {
+    expect(() => {
+      (createDetectorEnhancer as any)(undefined);
+    }).toThrow();
+    expect(() => {
+      (createDetectorEnhancer as any)(123);
+    }).toThrow();
+    expect(() => {
+      (createDetectorEnhancer as any)({});
+    }).toThrow();
+    expect(() => {
+      (createDetectorEnhancer as any)([]);
+    }).toThrow();
   });
 
-  it('should create enhancer that creates store with DetectableStore interface', () => {
-    function dumbReducer(state) {
+  it("should create enhancer that creates store with DetectableStore interface", () => {
+    function dumbReducer(state: any) {
       return state;
     }
     function dumbDetector() {
@@ -30,209 +31,226 @@ describe('createDetectableStore', () => {
     const dumbState = {};
     function createMockStore() {
       return {
-        dispatch: () => {},
-        subscribe: chai.spy(),
+        dispatch: () => null,
+        subscribe: jest.fn(() => () => null),
         getState: () => dumbState,
-        replaceReducer: () => {}
-      };
+        replaceReducer: () => null
+      } as Store<any, any>;
     }
-    const createStoreSpy = chai.spy(createMockStore);
+    const createStoreSpy = jest.fn(createMockStore);
     const detectorEnhancer = createDetectorEnhancer(dumbDetector);
 
-    assert.isFunction(detectorEnhancer);
+    expect(detectorEnhancer).toBeInstanceOf(Function);
 
     const createDetectableStore = detectorEnhancer(createStoreSpy);
 
-    expect(createStoreSpy).to.not.have.been.called;
-    assert.isFunction(createDetectableStore);
+    expect(createStoreSpy).not.toHaveBeenCalled();
+    expect(createDetectableStore).toBeInstanceOf(Function);
 
     const detectableStore = createDetectableStore(dumbReducer, dumbState);
 
-    expect(createStoreSpy).to.have.been.called.once;
-    assert.isObject(detectableStore);
-    assert.isFunction(detectableStore.dispatch);
-    assert.isFunction(detectableStore.subscribe);
-    assert.isFunction(detectableStore.getState);
-    assert.isFunction(detectableStore.replaceReducer);
-    assert.isFunction(detectableStore.replaceDetector);
-    expect(detectableStore.subscribe).to.have.been.called.once;
+    expect(createStoreSpy).toHaveBeenCalledTimes(1);
+    expect(detectableStore).toBeInstanceOf(Object);
+    expect(detectableStore.dispatch).toBeDefined();
+    expect(detectableStore.subscribe).toBeDefined();
+    expect(detectableStore.getState).toBeDefined();
+    expect(detectableStore.replaceReducer).toBeDefined();
+    expect(detectableStore.replaceDetector).toBeDefined();
+    expect(detectableStore.subscribe).toHaveBeenCalledTimes(1);
   });
 
-  it('should create enhancer that creates store with valid replaceDetector function', () => {
-    function dumbReducer(state) {
+  it("should create enhancer that creates store with valid replaceDetector function", () => {
+    function dumbReducer(state: any) {
       return state;
     }
     function dumbDetector() {
       return [];
     }
     function nextDetector() {
-      return [{ type: 'NEXT_DETECTOR_REPLACED' }];
+      return [{ type: "NEXT_DETECTOR_REPLACED" }];
     }
     const states = [0];
-    const subscribed = [];
+    const subscribed: any[] = [];
     function createMockStore() {
       return {
-        dispatch: chai.spy(),
-        subscribe: (listener) => {
+        dispatch: jest.fn(),
+        subscribe: (listener: any) => {
           subscribed.push(listener);
-          return () => {}
+          return () => null;
         },
         getState: () => {
           // return next number on every call
           states.push(states.length);
           return states.length - 1;
         },
-        replaceReducer: chai.spy()
-      };
+        replaceReducer: jest.fn()
+      } as Store<any, any>;
     }
-    const nextDetectorSpy = chai.spy(nextDetector);
+    const nextDetectorSpy = jest.fn(nextDetector);
     const detectorEnhancer = createDetectorEnhancer(dumbDetector);
     const createDetectableStore = detectorEnhancer(createMockStore);
-    const detectableStore = createDetectableStore(dumbReducer, states[0]);
-    assert.lengthOf(subscribed, 1);
+    const detectableStore = createDetectableStore(
+      dumbReducer,
+      states[0] as any
+    );
+    expect(subscribed).toHaveLength(1);
 
-    assert.throws(() => { (detectableStore.replaceDetector as any)('invalid type'); }, Error);
+    expect(() => {
+      (detectableStore.replaceDetector as any)("invalid type");
+    }).toThrow();
 
-    expect(detectableStore.dispatch).to.not.have.been.called;
+    expect(detectableStore.dispatch).not.toHaveBeenCalled();
 
     detectableStore.replaceDetector(nextDetectorSpy);
-    expect(detectableStore.dispatch).to.have.been.called.once.with({ type: '@@detector/INIT' });
+    expect(detectableStore.dispatch).toHaveBeenCalledWith({
+      type: "@@detector/INIT"
+    });
 
     // run `detectActions` method
     subscribed[0]();
 
-    expect(nextDetectorSpy).to.have.been.called.once.with(0, 1);
-    expect(detectableStore.dispatch).to.have.been.called.with({ type: 'NEXT_DETECTOR_REPLACED' });
+    expect(nextDetectorSpy).toHaveBeenCalledWith(0, 1);
+    expect(detectableStore.dispatch).toHaveBeenCalledWith({
+      type: "NEXT_DETECTOR_REPLACED"
+    });
   });
 
-  it('should create store that dispatch if detectors returns single action', () => {
-    function dumbReducer(state) {
+  it("should create store that dispatch if detectors returns single action", () => {
+    function dumbReducer(state: any) {
       return state;
     }
     function singleDetector() {
-      return { type: 'SINGLE_ACTION' };
+      return { type: "SINGLE_ACTION" };
     }
     const dumbState = {};
-    const subscribed = [];
+    const subscribed: any[] = [];
     function createMockStore() {
       return {
-        dispatch: chai.spy(),
-        subscribe: (listener) => {
+        dispatch: jest.fn(),
+        subscribe: (listener: any) => {
           subscribed.push(listener);
-          return () => {}
+          return () => null;
         },
         getState: () => dumbState,
-        replaceReducer: () => {}
-      };
+        replaceReducer: () => null
+      } as Store<any, any>;
     }
     const detectorEnhancer = createDetectorEnhancer(singleDetector);
     const createDetectableStore = detectorEnhancer(createMockStore);
     const detectableStore = createDetectableStore(dumbReducer, dumbState);
 
-    assert.lengthOf(subscribed, 1);
+    expect(subscribed).toHaveLength(1);
 
     subscribed[0]();
-    expect(detectableStore.dispatch).to.have.been.called.once.with({ type: 'SINGLE_ACTION' });
+    expect(detectableStore.dispatch).toHaveBeenCalledWith({
+      type: "SINGLE_ACTION"
+    });
   });
 
-  it('should create store that runs detector on every subscribe', () => {
-    function dumbReducer(state) {
+  it("should create store that runs detector on every subscribe", () => {
+    function dumbReducer(state: any) {
       return state;
     }
     function dumbDetector() {
       return [];
     }
     const states = [0];
-    const subscribed = [];
+    const subscribed: any[] = [];
     function createMockStore() {
       return {
-        dispatch: chai.spy(),
-        subscribe: (listener) => {
+        dispatch: jest.fn(),
+        subscribe: (listener: any) => {
           subscribed.push(listener);
-          return () => {}
+          return () => null;
         },
         getState: () => {
           // return next number on every call
           states.push(states.length);
           return states.length - 1;
         },
-        replaceReducer: () => {}
-      };
+        replaceReducer: () => null
+      } as Store<any, any>;
     }
-    const dumbDetectorSpy = chai.spy(dumbDetector);
+    const dumbDetectorSpy = jest.fn(dumbDetector);
     const detectorEnhancer = createDetectorEnhancer(dumbDetectorSpy);
     const createDetectableStore = detectorEnhancer(createMockStore);
-    const detectableStore = createDetectableStore(dumbReducer, states[0]);
-    assert.lengthOf(subscribed, 1);
+    const detectableStore = createDetectableStore(
+      dumbReducer,
+      states[0] as any
+    );
+    expect(subscribed).toHaveLength(1);
 
-    expect(detectableStore.dispatch).to.not.have.been.called;
-
-    subscribed[0]();
-
-    expect(dumbDetectorSpy).to.have.been.called.with(0, 1);
-    expect(detectableStore.dispatch).to.not.have.been.called;
+    expect(detectableStore.dispatch).not.toHaveBeenCalled();
 
     subscribed[0]();
 
-    expect(dumbDetectorSpy).to.have.been.called.with(1, 2);
-    expect(detectableStore.dispatch).to.not.have.been.called;
+    expect(dumbDetectorSpy).toHaveBeenCalledWith(0, 1);
+    expect(detectableStore.dispatch).not.toHaveBeenCalled();
+
+    subscribed[0]();
+
+    expect(dumbDetectorSpy).toHaveBeenCalledWith(1, 2);
+    expect(detectableStore.dispatch).not.toHaveBeenCalled();
   });
 
-  it('should create store that doesn\'t dispatch if detector returns not array or single action', () => {
-    let detectorReturn = undefined;
-    function dumbReducer(state) {
+  it("should create store that doesn't dispatch if detector returns not array or single action", () => {
+    const detectorReturn = undefined;
+    function dumbReducer(state: any) {
       return state;
     }
     function scopedDetector() {
       return detectorReturn;
     }
     const dumbState = {};
-    const subscribed = [];
+    const subscribed: any[] = [];
     function createMockStore() {
       return {
-        dispatch: chai.spy(),
-        subscribe: (listener) => {
+        dispatch: jest.fn(),
+        subscribe: (listener: any) => {
           subscribed.push(listener);
-          return () => {}
+          return () => null;
         },
         getState: () => dumbState,
-        replaceReducer: () => {}
-      };
+        replaceReducer: () => null
+      } as Store<any, any>;
     }
     const detectorEnhancer = createDetectorEnhancer(scopedDetector);
     const createDetectableStore = detectorEnhancer(createMockStore);
     const detectableStore = createDetectableStore(dumbReducer, dumbState);
 
-    assert.lengthOf(subscribed, 1);
+    expect(subscribed).toHaveLength(1);
 
     subscribed[0]();
-    expect(detectableStore.dispatch).to.not.have.been.called;
+    expect(detectableStore.dispatch).not.toHaveBeenCalled();
 
     subscribed[0]();
-    expect(detectableStore.dispatch).to.not.have.been.called;
+    expect(detectableStore.dispatch).not.toHaveBeenCalled();
   });
 
-  it('should create store that dispatches actions from detector in chronological order', () => {
-    const reducerHistory = [];
-    const detectorHistory = [];
+  it("should create store that dispatches actions from detector in chronological order", () => {
+    const reducerHistory: [string, any][] = [];
+    const detectorHistory: [number, number][] = [];
 
-    const incrementBy = (number) => ({ type: 'INCREMENT', payload: number });
-    const multiplyBy = (number) => ({ type: 'MULTIPLY', payload: number });
+    const incrementBy = (payload: number) => ({ type: "INCREMENT", payload });
+    const multiplyBy = (payload: number) => ({ type: "MULTIPLY", payload });
 
-    const reducer = (counter = 0, action) => {
+    const reducer = (
+      counter = 0,
+      action: { type: string; payload?: number }
+    ) => {
       reducerHistory.push([action.type, action.payload]);
 
       switch (action.type) {
-        case 'INCREMENT':
-          return counter + action.payload;
-        case 'MULTIPLY':
-          return counter * action.payload;
+        case "INCREMENT":
+          return counter + action.payload!;
+        case "MULTIPLY":
+          return counter * action.payload!;
         default:
           return counter;
       }
     };
-    const detector = (prevCounter, nextCounter) => {
-      detectorHistory.push([prevCounter, nextCounter]);
+    const detector = (prevCounter?: number, nextCounter?: number) => {
+      detectorHistory.push([prevCounter || 0, nextCounter || 0]);
 
       // when counter == 1
       if (prevCounter !== nextCounter && nextCounter === 1) {
@@ -244,22 +262,21 @@ describe('createDetectableStore', () => {
       }
     };
 
-    const counterStore = createStore(reducer, 0, createDetectorEnhancer(detector));
+    const counterStore = createStore(
+      reducer,
+      0,
+      createDetectorEnhancer<number>(detector)
+    );
     counterStore.dispatch(incrementBy(1));
 
-    expect(reducerHistory).to.be.deep.equals([
-      ['@@redux/INIT', undefined], // 0
-      ['INCREMENT', 1], // 1
-      ['INCREMENT', 1], // 2
-      ['MULTIPLY', 2], // 4
-      ['INCREMENT', 1], // 5
+    expect(reducerHistory).toEqual([
+      [expect.any(String), undefined], // 0
+      ["INCREMENT", 1], // 1
+      ["INCREMENT", 1], // 2
+      ["MULTIPLY", 2], // 4
+      ["INCREMENT", 1] // 5
     ]);
-    expect(detectorHistory).to.be.deep.equals([
-      [0, 1],
-      [1, 2],
-      [2, 4],
-      [4, 5]
-    ]);
-    expect(counterStore.getState()).to.be.equals(5);
+    expect(detectorHistory).toEqual([[0, 1], [1, 2], [2, 4], [4, 5]]);
+    expect(counterStore.getState()).toEqual(5);
   });
 });

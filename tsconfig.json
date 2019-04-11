@@ -1,18 +1,17 @@
 {
   "compilerOptions": {
     "sourceRoot": "./src",
+    "strict": true,
     "sourceMap": true,
-    "experimentalDecorators": false,
-    "noImplicitAny": true,
-    "strictNullChecks": true,
     "target": "es5",
-    "module": "commonjs",
+    "module": "esnext",
     "moduleResolution": "node",
     "baseUrl": "./src",
     "declaration": true,
-    "declarationDir": "./"
+    "declarationDir": "./",
+    "esModuleInterop": true
   },
-  "include": [
-    "./src/**/*"
-  ]
+  "include": ["./src/**/*", "./test/**/*"],
+  "exclude": ["node_modules"],
+  "compileOnSave": false
 }

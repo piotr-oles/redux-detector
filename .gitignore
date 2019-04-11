@@ -19,6 +19,9 @@ jspm_packages
 # IDEA directory
 .idea
 
-# Lib and dist directory
+# MacOS
+.DS_Store
+
+### Rollup
 /lib
-/dist
+.rpt2_cache
