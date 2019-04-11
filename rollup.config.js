@@ -37,7 +37,11 @@ export default {
   ),
   plugins: [
     typescript({
-      clean: true
+      clean: true,
+      tsconfigOverride: {
+        include: ["./src/**/*"],
+        exclude: ["node_modules", "./test/**/*"]
+      }
     }),
     sourcemap()
   ]
