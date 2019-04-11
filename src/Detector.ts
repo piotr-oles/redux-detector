@@ -4,8 +4,8 @@ import { Action, AnyAction } from "redux";
  * Function that reduces previous and next state to single value.
  */
 export type Detector<TState = any, TResult = any> = (
-  prevState?: TState,
-  nextState?: TState
+  prevState: TState | undefined,
+  nextState: TState | undefined
 ) => TResult;
 
 /**
