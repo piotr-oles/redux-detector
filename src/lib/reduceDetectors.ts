@@ -1,6 +1,12 @@
-import { Detector } from "../Detector";
+import { Action, AnyAction } from "redux";
+import { ActionsDetector } from "../Detector";
 
-export function reduceDetectors<S>(...detectors: Detector<S>[]): Detector<S> {
+/**
+ * Compose many action detectors into one detector that aggregates actions returned by given detectors
+ */
+export function reduceDetectors<TState, TAction extends Action = AnyAction>(
+  ...detectors: ActionsDetector<TState, TAction>[]
+): ActionsDetector<TState, TAction> {
   // check detectors types in runtime
   const invalidDetectorsIndexes: number[] = detectors
     .map((detector, index) => (detector instanceof Function ? -1 : index))
@@ -19,11 +25,14 @@ export function reduceDetectors<S>(...detectors: Detector<S>[]): Detector<S> {
   }
 
   return function reducedDetector(
-    prevState: S | undefined,
-    nextState: S | undefined
+    prevState: TState | undefined,
+    nextState: TState | undefined
   ): any[] {
     return detectors
       .map(detector => detector(prevState, nextState) || [])
-      .reduce((actions, nextActions) => actions.concat(nextActions), []);
+      .reduce(
+        (actions: TAction[], nextActions) => actions.concat(nextActions),
+        []
+      );
   };
 }
