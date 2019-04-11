@@ -6,7 +6,7 @@ export { DetectableStoreExt } from "./DetectableStoreExt";
 // enhance redux store
 export { createDetectorEnhancer } from "./createDetectorEnhancer";
 
-// reduce detectors
+// standard library
 export { reduceDetectors } from "./lib/reduceDetectors";
 export { combineDetectors } from "./lib/combineDetectors";
 export { mountDetector } from "./lib/mountDetector";

@@ -1,5 +1,10 @@
-import { Detector } from "../Detector";
-import { DetectorsMap } from "../DetectorsMap";
+import { Action, AnyAction } from "redux";
+import { ActionsDetector } from "../Detector";
+
+type ActionsDetectorsMap<
+  TState extends object,
+  TAction extends Action = AnyAction
+> = { [K in keyof TState]?: ActionsDetector<TState[K], TAction> };
 
 /**
  * Combine detectors to bind them to the local state.
@@ -8,17 +13,18 @@ import { DetectorsMap } from "../DetectorsMap";
  * @param map Map of detectors bounded to state.
  * @returns Combined detector
  */
-export function combineDetectors<S extends object>(
-  map: DetectorsMap<S>
-): Detector<S> {
+export function combineDetectors<
+  TState extends object,
+  TAction extends Action = AnyAction
+>(map: ActionsDetectorsMap<TState, TAction>): ActionsDetector<TState, TAction> {
   return function combinedDetector(
-    prevState: S | undefined,
-    nextState: S | undefined
+    prevState?: TState,
+    nextState?: TState
   ): any[] {
     return Object.keys(map).reduce((reducedActions: any[], key: string) => {
-      let actions: any | any[] | void = map[key as keyof S]!(
-        prevState ? prevState[key as keyof S] : undefined,
-        nextState ? nextState[key as keyof S] : undefined
+      let actions: any | any[] | void = map[key as keyof TState]!(
+        prevState ? prevState[key as keyof TState] : undefined,
+        nextState ? nextState[key as keyof TState] : undefined
       );
 
       if (actions) {

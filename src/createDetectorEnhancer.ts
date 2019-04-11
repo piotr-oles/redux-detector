@@ -1,7 +1,7 @@
 import { Reducer, Store, StoreEnhancer } from "redux";
 import { DetectableStore } from "./DetectableStore";
 import { DetectableStoreExt } from "./DetectableStoreExt";
-import { Detector } from "./Detector";
+import { ActionsDetector } from "./Detector";
 
 export const ActionTypes: { INIT: string } = {
   INIT: "@@detector/INIT"
@@ -15,11 +15,11 @@ export type StoreDetectableEnhancer<S> = StoreEnhancer<
 /**
  * Creates detector enhancer that modifies redux store to use it with provided detector.
  *
- * @param detector Root detector
+ * @param detector Root actions detector
  * @returns Store enhancer
  */
 export function createDetectorEnhancer<S = any>(
-  detector: Detector<S>
+  detector: ActionsDetector<S>
 ): StoreDetectableEnhancer<S> {
   if (typeof detector !== "function") {
     throw new Error("Expected the detector to be a function.");
@@ -43,7 +43,7 @@ export function createDetectorEnhancer<S = any>(
       const detectableStore: DetectableStore<any, any> = {
         ...store,
         replaceDetector: function replaceDetector(
-          nextDetector: Detector<any>
+          nextDetector: ActionsDetector<any>
         ): void {
           if (typeof nextDetector !== "function") {
             throw new Error("Expected the nextDetector to be a function.");
