@@ -11,6 +11,7 @@
     "declarationDir": "./",
     "esModuleInterop": true
   },
-  "exclude": ["./test/**/*"],
+  "include": ["./src/**/*", "./test/**/*"],
+  "exclude": ["node_modules"],
   "compileOnSave": false
 }
