@@ -12,9 +12,16 @@ script:
   - yarn test --ci
 
 deploy:
-  provider: script
-  skip_cleanup: true
-  script:
-    - yarn exec semantic-release
-  on:
-    branch: master
+  - provider: script
+    skip_cleanup: true
+    script:
+      - yarn exec semantic-release
+    on:
+      branch: develop
+
+  - provider: script
+    skip_cleanup: true
+    script:
+      - yarn exec semantic-release
+    on:
+      branch: master

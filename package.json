@@ -70,6 +70,16 @@
       }
     }
   },
+  "release": {
+    "branches": [
+      "master",
+      {
+        "name": "develop",
+        "channel": "beta",
+        "prerelease": "rc"
+      }
+    ]
+  },
   "devDependencies": {
     "@commitlint/config-conventional": "^7.5.0",
     "@types/jest": "^24.0.0",
