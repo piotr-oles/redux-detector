@@ -37,13 +37,13 @@ const store = createStore(rootReducer, createDetectorEnhancer(rootDetector));
 ## Motivation
 
 Redux Detector [enhancer](http://redux.js.org/docs/api/createStore.html) allows you to detect state changes in redux.
-A detector is a simple and pure function which compares two states and returns action or list of actions for some states transitions.
+An actions detector is a simple and pure function which compares two states and returns action or list of actions for some states transitions.
 
 ```typescript
-type Detector<S> = (
-  prevState: S | undefined,
-  nextState: S | undefined
-) => Action | Action[] | void;
+type ActionsDetector<TState, TAction extends Action = AnyAction> = (
+  prevState: TState | undefined,
+  nextState: TState | undefined
+) => TAction | TAction[] | void;
 ```
 
 For example detector that checks if number of rows exceed 100 looks like this:
@@ -61,12 +61,12 @@ Thanks to detectors purity they are predictable and easy to test. There is no pr
 
 ## Composition
 
-Redux store can handle only one detector (and one reducer). But don't worry - you can combine and reduce them. To do this, use
-`combineDetectors` and `reduceDetectors` functions.
+Redux store can handle only one detector (and one reducer). But don't worry - you can combine and compose them. To do this, use
+`combineDetectors` and `composeDetectors` functions.
 
 ```js
 // ./detectors/rootDetector.js
-import { combineDetectors, reduceDetectors } from "redux-detector";
+import { combineDetectors, composeDetectors } from "redux-detector";
 import { fooDetector } from "./fooDetector";
 import { barDetector } from "./barDetector";
 import { anotherDetector } from "./anotherDetector";
@@ -81,7 +81,7 @@ import { anotherDetector } from "./anotherDetector";
 // and also `barDetector` to `state.bar` branch.
 
 export default combineDetectors({
-  foo: reduceDetectors(fooDetector, anotherDetector),
+  foo: composeDetectors(fooDetector, anotherDetector),
   bar: barDetector
 });
 ```

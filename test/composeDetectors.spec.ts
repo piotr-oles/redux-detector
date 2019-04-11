@@ -1,8 +1,8 @@
-import { reduceDetectors } from "../src";
+import { composeDetectors } from "../src";
 
-describe("reduceDetectors", () => {
+describe("composeDetectors", () => {
   it("should export composeDetectors function", () => {
-    expect(reduceDetectors).toBeInstanceOf(Function);
+    expect(composeDetectors).toBeInstanceOf(Function);
   });
 
   it("should return valid detector for composition of two detectors", () => {
@@ -14,7 +14,7 @@ describe("reduceDetectors", () => {
       return [{ type: "ACTION_C" }];
     }
 
-    const detectorAB = reduceDetectors(detectorA, detectorB);
+    const detectorAB = composeDetectors(detectorA, detectorB);
 
     expect(detectorAB).toBeInstanceOf(Function);
     expect(detectorAB({}, {})).toBeInstanceOf(Array);
@@ -49,7 +49,7 @@ describe("reduceDetectors", () => {
       return [];
     }
 
-    const detectorAB = reduceDetectors(detectorA, detectorB);
+    const detectorAB = composeDetectors(detectorA, detectorB);
 
     expect(detectorAB(-10, 50)).toEqual([{ type: "NEXT_STATE_GREATER" }]);
     expect(detectorAB(30, 20)).toEqual([{ type: "PREV_STATE_GREATER" }]);
@@ -68,7 +68,7 @@ describe("reduceDetectors", () => {
       }
     }
 
-    const detectorAB = reduceDetectors(detectorA, detectorB);
+    const detectorAB = composeDetectors(detectorA, detectorB);
 
     expect(detectorAB(-10, 50)).toEqual([{ type: "NEXT_STATE_GREATER" }]);
     expect(detectorAB(30, 20)).toEqual([{ type: "PREV_STATE_GREATER" }]);
@@ -83,7 +83,7 @@ describe("reduceDetectors", () => {
       return { type: "SINGLE_DETECTOR" };
     }
 
-    const detectorAB = reduceDetectors(detectorA, detectorB);
+    const detectorAB = composeDetectors(detectorA, detectorB);
 
     expect(detectorAB(undefined, undefined)).toEqual([
       { type: "ARRAY_DETECTOR" },
@@ -92,7 +92,7 @@ describe("reduceDetectors", () => {
   });
 
   it("should return valid composed detector for empty arguments", () => {
-    const emptyDetector = reduceDetectors();
+    const emptyDetector = composeDetectors();
 
     expect(emptyDetector).toBeInstanceOf(Function);
     expect(emptyDetector(10, 20)).toEqual([]);
@@ -100,10 +100,10 @@ describe("reduceDetectors", () => {
 
   it("should throw an exception for invalid arguments", () => {
     expect(() => {
-      (reduceDetectors as any)({ foo: "bar" });
+      (composeDetectors as any)({ foo: "bar" });
     }).toThrow();
     expect(() => {
-      (reduceDetectors as any)(() => undefined, undefined);
+      (composeDetectors as any)(() => undefined, undefined);
     }).toThrow();
   });
 });

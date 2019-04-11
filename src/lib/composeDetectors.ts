@@ -4,7 +4,7 @@ import { ActionsDetector } from "../Detector";
 /**
  * Compose many action detectors into one detector that aggregates actions returned by given detectors
  */
-export function reduceDetectors<TState, TAction extends Action = AnyAction>(
+export function composeDetectors<TState, TAction extends Action = AnyAction>(
   ...detectors: ActionsDetector<TState, TAction>[]
 ): ActionsDetector<TState, TAction> {
   // check detectors types in runtime
@@ -16,7 +16,7 @@ export function reduceDetectors<TState, TAction extends Action = AnyAction>(
     throw new Error(
       `Invalid ${invalidDetectorsIndexes.join(
         ", "
-      )} arguments in reduceDetectors function.\n` +
+      )} arguments in composeDetectors function.\n` +
         `Detectors should be a 'function' type, ` +
         `'${invalidDetectorsIndexes
           .map(index => typeof detectors[index])
@@ -24,7 +24,7 @@ export function reduceDetectors<TState, TAction extends Action = AnyAction>(
     );
   }
 
-  return function reducedDetector(
+  return function composedDetector(
     prevState: TState | undefined,
     nextState: TState | undefined
   ): any[] {
