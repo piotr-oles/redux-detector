@@ -19,4 +19,14 @@ describe("lib/mapNextState", () => {
 
     expect(detector(prevState, nextState)).toEqual(nextState.toUpperCase());
   });
+
+  it("should return detector that returns result mapped by state selector and result selector", () => {
+    const stateSelector = (state?: string) => state!.toUpperCase();
+    const resultSelector = (state?: string) => `result: ${state}`;
+    const detector = mapNextState(stateSelector, resultSelector);
+
+    expect(detector(prevState, nextState)).toEqual(
+      `result: ${nextState.toUpperCase()}`
+    );
+  });
 });
