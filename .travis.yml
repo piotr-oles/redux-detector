@@ -15,7 +15,8 @@ deploy:
   - provider: script
     skip_cleanup: true
     script:
-      - yarn exec semantic-release
+      - echo -e "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > .npmrc
+      - yarn publish --tag beta
     on:
       branch: develop
 
