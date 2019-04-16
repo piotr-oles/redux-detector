@@ -36,8 +36,8 @@ const store = createStore(rootReducer, createDetectorEnhancer(rootDetector));
 
 ## Motivation
 
-Redux Detector [enhancer](http://redux.js.org/docs/api/createStore.html) allows you to detect state changes in redux.
-An actions detector is a simple and pure function which compares two states and returns action or list of actions for some states transitions.
+Redux Detector [enhancer](http://redux.js.org/docs/api/createStore.html) allows you to detect state changes in the redux.
+An actions detector is a simple and pure function which compares two states and returns action or list of actions for given states transitions.
 
 ```typescript
 type ActionsDetector<TState, TAction extends Action = AnyAction> = (
@@ -86,7 +86,7 @@ export default combineDetectors({
 });
 ```
 
-Another way to re-use local state detectors is to mount them with `mountDetector` function. Combine detectors work only on objects level -
+Another way to re-use local state detectors is to mount them with `mapState` function. Combine detectors work only on objects level -
 if you want to use detectors on more nested data, you should mount them. With factory pattern, it becomes very elastic.
 
 ```js
@@ -100,10 +100,10 @@ export function createLimitExceedDetector(limit, action) {
 }
 
 // ./detectors/rowsLimitExceedDetector.js
-import { mountDetector } from "redux-detector";
+import { mapState } from "redux-detector";
 import { createLimitExceeedDetector } from "./limitExceedDetector";
 
-export const rowsLimitExceedDetector = mountDetector(
+export const rowsLimitExceedDetector = mapState(
   state => state.rows.length,
   createLimitExceedDetector(100, ROWS_LIMIT_EXCEEDED)
 );
@@ -112,7 +112,44 @@ export const rowsLimitExceedDetector = mountDetector(
 Of course, examples above are very trivial, but you can use it to solve more common problems
 (you can, for example, schedule resource fetch on parameters change).
 
-## Code Splitting
+## Condition detector
+
+The most common use case is to detect if some condition has been changed. As the condition can become very complex,
+this library provides few functions that helps to create such detectors.
+
+That's how we can implement detector that will fetch users list if we are on the users page and pagination or filters changed:
+
+```typescript
+import {
+  conditionDetector,
+  composeOr,
+  composeAnd,
+  mapState,
+  mapNextState,
+  changedPositive
+} from "redux-detector";
+import { hasMatch } from "./routerSelectors";
+import { getUserPagination, getUserFilters } from "./userSelectors";
+import { fetchUsers } from "./userActions";
+import { USERS_ROUTE } from "./routes";
+
+const usersListDetector = conditionDetector(
+  composeOr(
+    mapState(hasMatch(USERS_ROUTE), changedPositive), // case 1 - we have entered users page
+    composeAnd(
+      // case 2 - we are on the users page and pagination or filters changed
+      mapNextState(hasMatch(USERS_ROUTE)),
+      composeOr(
+        mapState(getUserPagination, changedPositive),
+        mapState(getUserFilters, changedPositive)
+      )
+    )
+  ),
+  () => fetchUsers()
+);
+```
+
+## Code splitting
 
 Redux Detector provides `replaceDetector` method on `DetectableStore` interface (store created by Redux Detector). It's similar to
 `replaceReducer` - it changes detector and dispatches `{ type: '@@detector/INIT' }`.
