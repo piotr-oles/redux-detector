@@ -15,7 +15,7 @@ describe("detectors compose", () => {
   const getA = (state: State | undefined) => (state ? state.a : 0);
   const isAPositive = (state: State | undefined) => getA(state) > 0;
   const isAZero = (state: State | undefined) => getA(state) === 0;
-  const action = { type: "DETECTED" };
+  const action = (payload: any) => ({ type: "DETECTED", payload });
 
   const detector = conditionDetector<State>(
     composeAnd(
@@ -25,7 +25,7 @@ describe("detectors compose", () => {
         mapState(isAPositive, changedFromFalsy)
       )
     ),
-    () => action
+    mapNextState(getA, (a?: number) => action(a))
   );
 
   it.each([
@@ -54,7 +54,7 @@ describe("detectors compose", () => {
       const nextState = nextA ? { a: nextA } : undefined;
 
       expect(detector(prevState, nextState)).toEqual(
-        shouldDetect ? action : undefined
+        shouldDetect ? action(nextA) : undefined
       );
     }
   );
