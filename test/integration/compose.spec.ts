@@ -1,11 +1,10 @@
 import {
-  changedFromFalsy,
-  changedToTruthy,
+  changedAndTruthy,
   composeAnd,
   composeOr,
   conditionDetector,
-  mapNextState,
-  mapState
+  isTruthy,
+  mapNextState
 } from "../../src";
 
 describe("detectors compose", () => {
@@ -13,17 +12,16 @@ describe("detectors compose", () => {
     a: number;
   }
   const getA = (state: State | undefined) => (state ? state.a : 0);
-  const isAPositive = (state: State | undefined) => getA(state) > 0;
-  const isAZero = (state: State | undefined) => getA(state) === 0;
+  const isANotNegative = (state: State | undefined) =>
+    state && getA(state) >= 0;
+  const isAZero = (state: State | undefined) => state && getA(state) === 0;
+  const isAPositive = (state: State | undefined) => state && getA(state) > 0;
   const action = (payload: any) => ({ type: "DETECTED", payload });
 
   const detector = conditionDetector<State>(
     composeAnd(
-      mapNextState(isAPositive),
-      composeOr(
-        mapState(isAZero, changedToTruthy),
-        mapState(isAPositive, changedFromFalsy)
-      )
+      isTruthy(isANotNegative),
+      composeOr(changedAndTruthy(isAZero), isTruthy(isAPositive))
     ),
     mapNextState(getA, (a?: number) => action(a))
   );
@@ -31,11 +29,11 @@ describe("detectors compose", () => {
   it.each([
     [undefined, undefined, false],
     [undefined, -1, false],
-    [undefined, 0, false],
+    [undefined, 0, true],
     [undefined, 1, true],
     [-1, undefined, false],
     [-1, -1, false],
-    [-1, 0, false],
+    [-1, 0, true],
     [-1, 1, true],
     [0, undefined, false],
     [0, -1, false],
@@ -43,15 +41,15 @@ describe("detectors compose", () => {
     [0, 1, true],
     [1, undefined, false],
     [1, -1, false],
-    [1, 0, false],
-    [1, 1, false]
+    [1, 0, true],
+    [1, 1, true]
   ])(
     "should compose detectors for prevA = %p, nextA = %p and should detect = %p",
     (...args: any[]) => {
       const [prevA, nextA, shouldDetect] = args;
 
-      const prevState = prevA ? { a: prevA } : undefined;
-      const nextState = nextA ? { a: nextA } : undefined;
+      const prevState = prevA !== undefined ? { a: prevA } : undefined;
+      const nextState = nextA !== undefined ? { a: nextA } : undefined;
 
       expect(detector(prevState, nextState)).toEqual(
         shouldDetect ? action(nextA) : undefined
