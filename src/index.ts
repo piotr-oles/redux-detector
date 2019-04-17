@@ -7,22 +7,24 @@ export { DetectableStoreExt } from "./DetectableStoreExt";
 export { createDetectorEnhancer } from "./createDetectorEnhancer";
 
 // standard library
-export { composeDetectors } from "./lib/composeDetectors";
-export { combineDetectors } from "./lib/combineDetectors";
-export { conditionDetector } from "./lib/conditionDetector";
-export { mapState } from "./lib/mapState";
-export { mapNextState } from "./lib/mapNextState";
-export { mapPrevState } from "./lib/mapPrevState";
-export { composeAnd } from "./lib/composeAnd";
-export { composeOr } from "./lib/composeOr";
-export { mapFalsy } from "./lib/mapFalsy";
-export { mapTruthy } from "./lib/mapTruthy";
+export { composeDetectors } from "./composeDetectors";
+export { combineDetectors } from "./combineDetectors";
+export { conditionDetector } from "./conditionDetector";
+export { mapDetector } from "./mapDetector";
+export { mapNextState } from "./mapNextState";
+export { mapPrevState } from "./mapPrevState";
+export { composeAnd } from "./composeAnd";
+export { composeOr } from "./composeOr";
 
 // standard library changed detectors
-export { changed } from "./lib/changed/changed";
-export { changedFrom } from "./lib/changed/changedFrom";
-export { changedFromFalsy } from "./lib/changed/changedFromFalsy";
-export { changedFromTruthy } from "./lib/changed/changedFromTruthy";
-export { changedTo } from "./lib/changed/changedTo";
-export { changedToFalsy } from "./lib/changed/changedToFalsy";
-export { changedToTruthy } from "./lib/changed/changedToTruthy";
+export { changed } from "./lib/changed";
+export { changedAndFalsy } from "./lib/changedAndFalsy";
+export { changedAndTruthy } from "./lib/changedAndTruthy";
+export { changedToFalsy } from "./lib/changedToFalsy";
+export { changedToTruthy } from "./lib/changedToTruthy";
+export { isEqual } from "./lib/isEqual";
+export { isFalsy } from "./lib/isFalsy";
+export { isTruthy } from "./lib/isTruthy";
+export { wasEqual } from "./lib/wasEqual";
+export { wasFalsy } from "./lib/wasFalsy";
+export { wasTruthy } from "./lib/wasTruthy";
