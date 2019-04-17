@@ -124,9 +124,9 @@ import {
   conditionDetector,
   composeOr,
   composeAnd,
-  mapState,
-  mapNextState,
-  changedPositive
+  changedToTruthy,
+  isTruthy,
+  changedAndTruthy
 } from "redux-detector";
 import { hasMatch } from "./routerSelectors";
 import { getUserPagination, getUserFilters } from "./userSelectors";
@@ -135,13 +135,13 @@ import { USERS_ROUTE } from "./routes";
 
 const usersListDetector = conditionDetector(
   composeOr(
-    mapState(hasMatch(USERS_ROUTE), changedPositive), // case 1 - we have entered users page
+    changedToTruthy(hasMatch(USERS_ROUTE)), // case 1 - we have entered users page
     composeAnd(
       // case 2 - we are on the users page and pagination or filters changed
-      mapNextState(hasMatch(USERS_ROUTE)),
+      isTruthy(hasMatch(USERS_ROUTE)),
       composeOr(
-        mapState(getUserPagination, changedPositive),
-        mapState(getUserFilters, changedPositive)
+        changedAndTruthy(getUserPagination),
+        changedAndTruthy(getUserFilters)
       )
     )
   ),
