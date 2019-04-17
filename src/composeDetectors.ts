@@ -3,9 +3,9 @@ import { ActionsDetector } from "./Detector";
 /**
  * Compose many action detectors into one detector that aggregates actions returned by given detectors
  */
-export function composeDetectors<TState = any, TAction = any>(
-  ...detectors: ActionsDetector<TState, TAction>[]
-): ActionsDetector<TState, TAction> {
+export function composeDetectors<TState = any>(
+  ...detectors: ActionsDetector<TState, any>[]
+): ActionsDetector<TState, any> {
   // check detectors types in runtime
   const invalidDetectorsIndexes: number[] = detectors
     .map((detector, index) => (detector instanceof Function ? -1 : index))
@@ -29,9 +29,6 @@ export function composeDetectors<TState = any, TAction = any>(
   ): any[] {
     return detectors
       .map(detector => detector(prevState, nextState) || [])
-      .reduce(
-        (actions: TAction[], nextActions) => actions.concat(nextActions),
-        []
-      );
+      .reduce((actions: any[], nextActions) => actions.concat(nextActions), []);
   };
 }
