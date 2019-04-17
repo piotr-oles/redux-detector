@@ -1,10 +1,9 @@
-import { Action, AnyAction } from "redux";
 import { ActionsDetector } from "./Detector";
 
 /**
  * Compose many action detectors into one detector that aggregates actions returned by given detectors
  */
-export function composeDetectors<TState, TAction extends Action = AnyAction>(
+export function composeDetectors<TState = any, TAction = any>(
   ...detectors: ActionsDetector<TState, TAction>[]
 ): ActionsDetector<TState, TAction> {
   // check detectors types in runtime
@@ -25,8 +24,8 @@ export function composeDetectors<TState, TAction extends Action = AnyAction>(
   }
 
   return function composedDetector(
-    prevState: TState | undefined,
-    nextState: TState | undefined
+    prevState?: TState,
+    nextState?: TState
   ): any[] {
     return detectors
       .map(detector => detector(prevState, nextState) || [])

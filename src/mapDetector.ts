@@ -8,12 +8,12 @@ export function mapDetector<
   TInnerState = any,
   TResult = any
 >(
-  selector: (state: TOuterState | undefined) => TInnerState,
+  selector: (state?: TOuterState) => TInnerState,
   detector: Detector<TInnerState, TResult>
 ): Detector<TOuterState, TResult> {
   return function mappedDetector(
-    prevState: TOuterState | undefined,
-    nextState: TOuterState | undefined
+    prevState?: TOuterState,
+    nextState?: TOuterState
   ): TResult {
     return detector(selector(prevState), selector(nextState));
   };

@@ -1,10 +1,8 @@
-import { Action, AnyAction } from "redux";
 import { ActionsDetector } from "./Detector";
 
-type ActionsDetectorsMap<
-  TState extends object,
-  TAction extends Action = AnyAction
-> = { [K in keyof TState]?: ActionsDetector<TState[K], TAction> };
+type ActionsDetectorsMap<TState extends object, TAction = any> = {
+  [K in keyof TState]?: ActionsDetector<TState[K], TAction>
+};
 
 /**
  * Combine detectors to bind them to the local state.
@@ -13,10 +11,9 @@ type ActionsDetectorsMap<
  * @param map Map of detectors bounded to state.
  * @returns Combined detector
  */
-export function combineDetectors<
-  TState extends object,
-  TAction extends Action = AnyAction
->(map: ActionsDetectorsMap<TState, TAction>): ActionsDetector<TState, TAction> {
+export function combineDetectors<TState extends object, TAction = any>(
+  map: ActionsDetectorsMap<TState, TAction>
+): ActionsDetector<TState, TAction> {
   return function combinedDetector(
     prevState?: TState,
     nextState?: TState

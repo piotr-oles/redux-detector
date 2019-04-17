@@ -1,17 +1,10 @@
-import { Action, AnyAction } from "redux";
 import { ActionsDetector, ConditionDetector } from "./Detector";
 
-export function conditionDetector<
-  TState = any,
-  TAction extends Action = AnyAction
->(
+export function conditionDetector<TState = any, TAction = any>(
   condition: ConditionDetector<TState>,
   actions: ActionsDetector<TState, TAction>
 ): ActionsDetector<TState, TAction> {
-  return function conditionalDetector(
-    prevState: TState | undefined,
-    nextState: TState | undefined
-  ) {
+  return function conditionalDetector(prevState?: TState, nextState?: TState) {
     if (condition(prevState, nextState)) {
       return actions(prevState, nextState);
     }
