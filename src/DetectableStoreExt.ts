@@ -1,4 +1,3 @@
-import { DeepPartial } from "redux";
 import { Detector } from "./Detector";
 
 /**
