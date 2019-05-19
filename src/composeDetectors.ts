@@ -29,6 +29,9 @@ export function composeDetectors<TState = any>(
   ): any[] {
     return detectors
       .map(detector => detector(prevState, nextState) || [])
-      .reduce((actions: any[], nextActions) => actions.concat(nextActions), []);
+      .reduceRight(
+        (actions: any[], nextActions) => actions.concat(nextActions),
+        []
+      );
   };
 }
