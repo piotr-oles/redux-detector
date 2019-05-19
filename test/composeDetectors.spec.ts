@@ -21,14 +21,14 @@ describe("composeDetectors", () => {
 
     // we check it twice to be sure that detectorAB doesn't has any internal state.
     expect(detectorAB({}, {})).toEqual([
+      { type: "ACTION_C" },
       { type: "ACTION_A" },
-      { type: "ACTION_B" },
-      { type: "ACTION_C" }
+      { type: "ACTION_B" }
     ]);
     expect(detectorAB({}, {})).toEqual([
+      { type: "ACTION_C" },
       { type: "ACTION_A" },
-      { type: "ACTION_B" },
-      { type: "ACTION_C" }
+      { type: "ACTION_B" }
     ]);
   });
 
@@ -86,8 +86,8 @@ describe("composeDetectors", () => {
     const detectorAB = composeDetectors(detectorA, detectorB);
 
     expect(detectorAB(undefined, undefined)).toEqual([
-      { type: "ARRAY_DETECTOR" },
-      { type: "SINGLE_DETECTOR" }
+      { type: "SINGLE_DETECTOR" },
+      { type: "ARRAY_DETECTOR" }
     ]);
   });
 
