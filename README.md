@@ -41,8 +41,8 @@ To enable Redux Detector, use `createDetectorEnhancer`:
 ```js
 import { createStore } from "redux";
 import { createDetectorEnhancer } from "redux-detector";
-import rootReducer from "./reducers";
-import rootDetector from "./detectors";
+import { rootReducer } from "./store/reducer/rootReducer";
+import { rootDetector } from "./store/detector/rootDetector";
 
 const store = createStore(rootReducer, createDetectorEnhancer(rootDetector));
 ```
@@ -60,12 +60,12 @@ type Detector<TState, TResult> = (
 ) => TResult;
 ```
 
-The **`Actions Detector`** is a `Detector` which returns action, list of actions or nothing. 
+The **`Actions Detector`** is a `Detector` which returns action, list of actions or nothing.
 Returned actions are automatically dispatched by the enhancer.
 
 ```typescript
-import { Detector } from 'redux-detector';
-import { Action } from 'redux';
+import { Detector } from "redux-detector";
+import { Action } from "redux";
 
 type ActionsDetector<TState, TAction extends Action> = Detector<
   TState,
@@ -74,15 +74,17 @@ type ActionsDetector<TState, TAction extends Action> = Detector<
 ```
 
 Another type of the detector is the **`Condition Detector`** which returns boolean values.
+
 ```typescript
-import { Detector } from 'redux-detector';
+import { Detector } from "redux-detector";
 
 type ConditionDetector<TState> = Detector<TState, boolean>;
 ```
 
 These two types of detectors have different responsibility:
- * `Condition Detectors` describes a condition that we want to detect
- * `Actions Detectors` describes which action we want to dispatch
+
+- `Condition Detectors` describes a condition that we want to detect
+- `Actions Detectors` describes which action we want to dispatch
 
 Thanks to its functional nature and purity, detectors are easy to test. They don't break [Single Source of Truth principle](https://en.wikipedia.org/wiki/Single_source_of_truth)
 as the input is only previous and next state.
@@ -90,37 +92,36 @@ as the input is only previous and next state.
 ## Basics 👈
 
 Let's start simply - implement a condition detector that checks if number of login attempts exceeded 3.
+
 ```typescript
 export const exceededLoginAttemptsLimit = (prevState, nextState) =>
   prevState.attempts <= 3 && nextState.attempts > 3;
 ```
 
-We can make above example more generic - `prevState.attempts <= 3` is the same as `!(prevState.attempts > 3)`. 
-That means that we check if some condition is **not truthy** for the *previous state* but is **truthy** for the *next state*.
+We can make above example more generic - `prevState.attempts <= 3` is the same as `!(prevState.attempts > 3)`.
+That means that we check if some condition is **not truthy** for the _previous state_ but is **truthy** for the _next state_.
 This kind of transition can be handled by the `changedToTruthy` function.
 
 ```typescript
-import { changedToTruthy } from 'redux-detector';
+import { changedToTruthy } from "redux-detector";
 
 export const exceededLoginAttemptsLimit = changedToTruthy(
-  (state) => state.attempts > 3
+  state => state.attempts > 3
 );
 ```
 
-> Redux Detector library provides other useful functions to model condition detectors - please check the 
+> Redux Detector library provides other useful functions to model condition detectors - please check the
 > [API documentation](doc/api.md) to learn more.
 
-The next step is to use an action detector to dispatch an action when the limit became exceeded. 
-To do so, we will use `conditionDetector` function.
-```typescript
-import {
-  conditionDetector,
-  changedToTruthy
-} from "redux-detector";
-import { blockUser } from '../action/userAction';
+The next step is to use an action detector to dispatch an action when the limit became exceeded.
+To do so, we will use `composeIf` function.
 
-const blockUserDetector = conditionDetector(
-  changedToTruthy((state) => state.attempts > 3),
+```typescript
+import { composeIf, changedToTruthy } from "redux-detector";
+import { blockUser } from "../action/userAction";
+
+const blockUserDetector = composeIf(
+  changedToTruthy(state => state.attempts > 3),
   () => blockUser()
 );
 ```
@@ -129,10 +130,10 @@ The `createDetectorEnhancer` function accepts only one detector, so we have to c
 detectors to the one `rootDetector`.
 
 ```typescript
-import { composeDetectors } from 'redux-detector';
-import { blockUserDetector } from './userDetector';
+import { composeDetectors } from "redux-detector";
+import { blockUserDetector } from "./userDetector";
 // other detectors...
-import { companyDetector } from './companyDetector';
+import { companyDetector } from "./companyDetector";
 
 export const rootDetector = composeDetectors(
   blockUserDetector,
@@ -140,7 +141,10 @@ export const rootDetector = composeDetectors(
 );
 ```
 
+And that's all - `redux-detector` will dispatch `blockUser()` when login attempts exceeded 3 🎉
+
 ## [API reference 📖](doc/api.md)
+
 For more detailed documentation, please check API reference.
 
 ## Code splitting ✂️

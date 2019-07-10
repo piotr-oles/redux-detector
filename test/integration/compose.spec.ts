@@ -1,8 +1,8 @@
 import {
   changedAndTruthy,
   composeAnd,
+  composeIf,
   composeOr,
-  conditionDetector,
   isTruthy,
   mapNextState
 } from "../../src";
@@ -18,7 +18,7 @@ describe("detectors compose", () => {
   const isAPositive = (state: State | undefined) => state && getA(state) > 0;
   const action = (payload: any) => ({ type: "DETECTED", payload });
 
-  const detector = conditionDetector<State>(
+  const detector = composeIf<State>(
     composeAnd(
       isTruthy(isANotNegative),
       composeOr(changedAndTruthy(isAZero), isTruthy(isAPositive))

@@ -1,14 +1,14 @@
-import { conditionDetector } from "../src";
+import { composeIf } from "../src";
 
 describe("conditionDetector", () => {
   it("should export conditionDetector function", () => {
-    expect(conditionDetector).toBeInstanceOf(Function);
+    expect(composeIf).toBeInstanceOf(Function);
   });
 
   it("should return conditional detector", () => {
     const action = { type: "ACTION" };
     const detector = jest.fn(() => action);
-    const conditionalDetector = conditionDetector(
+    const conditionalDetector = composeIf(
       (prevState?: number, nextState?: number) =>
         !!(prevState && nextState && prevState < nextState),
       detector

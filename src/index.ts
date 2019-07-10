@@ -9,10 +9,10 @@ export { createDetectorEnhancer } from "./createDetectorEnhancer";
 // standard library
 export { composeDetectors } from "./composeDetectors";
 export { combineDetectors } from "./combineDetectors";
-export { conditionDetector } from "./conditionDetector";
 export { mapDetector } from "./mapDetector";
 export { mapNextState } from "./mapNextState";
 export { mapPrevState } from "./mapPrevState";
+export { composeIf } from "./composeIf";
 export { composeAnd } from "./composeAnd";
 export { composeOr } from "./composeOr";
 
