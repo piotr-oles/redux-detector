@@ -1,4 +1,4 @@
-import { mapDetector } from "../src";
+import { mapDetector } from "../../src";
 
 describe("mapDetector", () => {
   it("should export mapDetector function", () => {

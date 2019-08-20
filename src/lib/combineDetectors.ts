@@ -1,4 +1,4 @@
-import { ActionsDetector } from "./Detector";
+import { ActionsDetector } from "../Detector";
 
 type ActionsDetectorsMap<TState extends object, TAction = any> = {
   [K in keyof TState]?: ActionsDetector<TState[K], TAction>

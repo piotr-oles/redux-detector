@@ -1,4 +1,5 @@
-import { Detector } from "./Detector";
+import { Detector } from "../Detector";
+import { Selector } from "../Selector";
 
 /**
  * Maps detector to selected state using selectors. Works perfectly with reselect library.
@@ -8,7 +9,7 @@ export function mapDetector<
   TInnerState = any,
   TResult = any
 >(
-  selector: (state?: TOuterState) => TInnerState,
+  selector: Selector<TOuterState, TInnerState>,
   detector: Detector<TInnerState, TResult>
 ): Detector<TOuterState, TResult> {
   return function mappedDetector(

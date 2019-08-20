@@ -1,4 +1,4 @@
-import { composeDetectors } from "../src";
+import { composeDetectors } from "../../src";
 
 describe("composeDetectors", () => {
   it("should export composeDetectors function", () => {

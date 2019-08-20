@@ -6,7 +6,7 @@ The list of all available functions from the `redux-detector` package.
 
 ### `createDetectorEnhancer(detector: ActionsDetector): StoreEnhancer`
 
-Creates new `StoreDetectableEnhancer` that can be passed as a second parameter of the
+Creates new `StoreDetectableEnhancer` that can be passed as a second or third parameter of the
 `createStore` function from `redux`. This enhancer hooks into store's `dispatch` method
 and adds `replaceDetector` method.
 
@@ -156,3 +156,110 @@ const blockUserOnExceededLimitDetector = composeIf(exceededLoginLimit, () =>
 ```
 
 </details>
+
+### `mapDetector(selector: Selector<A, B>, detector: Detector<B, C>): Detector<A, C>`
+
+Maps state passed to a detector by selector - works perfectly with reselect library.
+
+<details>
+<summary>Example:</summary>
+
+```js
+import { mapDetector, changedToTruthy } from "redux-detector";
+import { getLoginAttempts } from "./userSelector";
+
+export const exceededLoginLimitDetector = mapDetector(
+  getLoginAttempts,
+  changedToTruthy(attempts => attempts > 3)
+);
+```
+
+</details>
+
+### `mapPrevState(...selectors: Selector[]): Detector`
+
+Maps previous state passed to a detector by selectors - works perfectly with reselect library.
+It's a shortcut for `mapDetector(createSelector(...selectors), (prevState) => prevState)`.
+
+### `mapNextState(...selectors: Selector[]): Detector`
+
+Analogous to the `mapPrevState`.
+
+### `changed(selector: Selector<A, B>): ConditionDetector<B>`
+
+Creates condition detector that checks if next state is not equal previous state (uses `===` operator)
+
+<details>
+<summary>Example:</summary>
+
+```js
+import { composeIf, changed } from "redux-detector";
+import { getUserId } from "./userSelector";
+import { fetchUser } from "./userAction";
+
+export const fetchUserDetector = composeIf(changed(getUserId), () =>
+  fetchUser()
+);
+```
+
+</details>
+
+### `changedAndTruthy(selector: Selector<A, B>): ConditionDetector<A>`
+
+Same as `changed` with additional requirement - next state has to be truthy.
+
+### `changedAndFalsy(selector: Selector<A, B>): ConditionDetector<A>`
+
+Same as `changed` with additional requirement - next state has to be falsy.
+
+### `changedToTruthy(selector: Selector<A, B>): ConditionDetector<A>`
+
+Same as `changed` with additional requirement - previous state has to be truthy.
+
+### `changedToFalsy(selector: Selector<A, B>): ConditionDetector<A>`
+
+Same as `changed` with additional requirement - previous state has to be falsy.
+
+### `isEqual(selector: Selector<A, B>, expectedNextState: B): ConditionDetector<A>`
+
+Creates condition detector that checks if next state is equal expected next state.
+
+<details>
+<summary>Example:</summary>
+
+```js
+import { composeIf, isEqual, changedAndTruthy } from "redux-detector";
+import { getUserRole, getUserId } from "./userSelector";
+import { fetchAdminPermissions } from "./userAction";
+
+export const fetchUserDetector = composeIf(
+  composeAnd(isEqual(getUserRole, "ROLE_ADMIN"), changedAndTruthy(getUserId)),
+  () => fetchAdminPermissions()
+);
+```
+
+</details>
+
+### `isTruthy(selector: Selector<A, B>): ConditionDetector<A>`
+
+Creates condition detector that checks if next state is truthy.
+
+<details>
+<summary>Example:</summary>
+
+```js
+import { composeIf, isTruthy, changedAndTruthy } from "redux-detector";
+import { isAdmin, getUserId } from "./userSelector";
+import { fetchAdminPermissions } from "./userAction";
+
+export const fetchUserDetector = composeIf(
+  composeAnd(isTruthy(isAdmin), changedAndTruthy(getUserId)),
+  () => fetchAdminPermissions()
+);
+```
+
+</details>
+
+### `isFalsy(selector: Selector<A, B>): ConditionSelector<A>`
+
+Creates condition detector that checks if next state is falsy.

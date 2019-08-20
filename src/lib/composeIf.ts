@@ -1,4 +1,4 @@
-import { ActionsDetector, ConditionDetector } from "./Detector";
+import { ActionsDetector, ConditionDetector } from "../Detector";
 
 export function composeIf<TState = any, TAction = any>(
   condition: ConditionDetector<TState>,

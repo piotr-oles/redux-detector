@@ -1,4 +1,4 @@
-import { composeOr } from "../src";
+import { composeOr } from "../../src";
 
 describe("composeOr", () => {
   it("should export composeOr function", () => {

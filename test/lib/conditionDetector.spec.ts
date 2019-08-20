@@ -1,4 +1,4 @@
-import { composeIf } from "../src";
+import { composeIf } from "../../src";
 
 describe("conditionDetector", () => {
   it("should export conditionDetector function", () => {
