@@ -1,8 +1,9 @@
 import { ConditionDetector } from "../Detector";
-import { mapDetector } from "../mapDetector";
+import { Selector } from "../Selector";
+import { mapDetector } from "./mapDetector";
 
 export function isFalsy<TOuterState = any, TInnerState = any>(
-  selector: (state?: TOuterState) => TInnerState
+  selector: Selector<TOuterState, TInnerState>
 ): ConditionDetector<TOuterState> {
   return mapDetector(selector, (prevState, nextState) => !nextState);
 }
