@@ -1,4 +1,4 @@
-import { combineDetectors } from "../src";
+import { combineDetectors } from "../../src";
 
 describe("combineDetectors", () => {
   it("should export reduceDetectors function", () => {

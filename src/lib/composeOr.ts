@@ -1,4 +1,4 @@
-import { ConditionDetector } from "./Detector";
+import { ConditionDetector } from "../Detector";
 
 /**
  * Composes condition detectors into one detector using "or" operation on detectors output.

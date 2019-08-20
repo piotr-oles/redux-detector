@@ -1,4 +1,4 @@
-import { composeAnd } from "../src";
+import { composeAnd } from "../../src";
 
 describe("composeAnd", () => {
   it("should export composeAnd function", () => {

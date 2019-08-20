@@ -1,4 +1,4 @@
-import { ActionsDetector } from "./Detector";
+import { ActionsDetector } from "../Detector";
 
 /**
  * Compose many action detectors into one detector that aggregates actions returned by given detectors
