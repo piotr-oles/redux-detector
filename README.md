@@ -12,8 +12,6 @@
 
 </div>
 
-**Warning: API is not stable yet, will be from version 1.0**
-
 ## Table of Contents 📋
 
 - [Installation 📦](#installation)
