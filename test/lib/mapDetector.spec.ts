@@ -1,6 +1,6 @@
 import { mapDetector } from "../../src";
 
-describe("mapDetector", () => {
+describe("lib/mapDetector", () => {
   it("should export mapDetector function", () => {
     expect(mapDetector).toBeInstanceOf(Function);
   });
@@ -30,11 +30,11 @@ describe("mapDetector", () => {
       return state!.branchA.subBranchB;
     }
 
-    const mountedDetector = mapDetector(selector, detector);
+    const mappedDetector = mapDetector(selector, detector);
 
-    expect(mountedDetector).toBeInstanceOf(Function);
+    expect(mappedDetector).toBeInstanceOf(Function);
 
-    const detectedActions = mountedDetector(
+    const detectedActions = mappedDetector(
       {
         branchA: {
           subBranchB: {

@@ -1,10 +1,13 @@
 // typings
-export { Detector } from "./Detector";
+export { Detector, ActionsDetector, ConditionDetector } from "./Detector";
 export { DetectableStore } from "./DetectableStore";
 export { DetectableStoreExt } from "./DetectableStoreExt";
+export { DetectorListener, DetectorListenerAPI } from "./DetectorListener";
 
-// enhance redux store
+// redux related functions
 export { createDetectorEnhancer } from "./createDetectorEnhancer";
+export { createDetectorListener } from "./createDetectorListener";
+export { composeDetectorListeners } from "./composeDetectorListeners";
 
 // standard library
 export { composeDetectors } from "./lib/composeDetectors";

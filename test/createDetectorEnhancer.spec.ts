@@ -1,7 +1,43 @@
-import { AnyAction, createStore, Store } from "redux";
-import { createDetectorEnhancer } from "../src";
+import {
+  Action,
+  applyMiddleware,
+  compose,
+  createStore,
+  Dispatch,
+  Middleware,
+  Reducer,
+  Store
+} from "redux";
+import {
+  ActionsDetector,
+  createDetectorEnhancer,
+  createDetectorListener,
+  DetectableStoreExt
+} from "../src";
 
 describe("createDetectorEnhancer", () => {
+  let dumbReducer: Reducer;
+  let dumbDetector: ActionsDetector;
+  let dumbState: any;
+  let subscribed: any[];
+  let createMockStore: () => Store<any, any>;
+
+  beforeEach(() => {
+    dumbReducer = (state = {}) => state;
+    dumbDetector = () => [];
+    subscribed = [];
+    dumbState = {};
+    createMockStore = () => ({
+      dispatch: jest.fn() as Dispatch,
+      subscribe: jest.fn((listener: any) => {
+        subscribed.push(listener);
+        return () => null;
+      }),
+      getState: jest.fn(() => dumbState),
+      replaceReducer: jest.fn(() => null)
+    });
+  });
+
   it("should export createDetectorEnhancer function", () => {
     expect(createDetectorEnhancer).toBeInstanceOf(Function);
   });
@@ -22,21 +58,6 @@ describe("createDetectorEnhancer", () => {
   });
 
   it("should create enhancer that creates store with DetectableStore interface", () => {
-    function dumbReducer(state: any) {
-      return state;
-    }
-    function dumbDetector() {
-      return [];
-    }
-    const dumbState = {};
-    function createMockStore() {
-      return {
-        dispatch: () => null,
-        subscribe: jest.fn(() => () => null),
-        getState: () => dumbState,
-        replaceReducer: () => null
-      } as Store<any, any>;
-    }
     const createStoreSpy = jest.fn(createMockStore);
     const detectorEnhancer = createDetectorEnhancer(dumbDetector);
 
@@ -47,7 +68,7 @@ describe("createDetectorEnhancer", () => {
     expect(createStoreSpy).not.toHaveBeenCalled();
     expect(createDetectableStore).toBeInstanceOf(Function);
 
-    const detectableStore = createDetectableStore(dumbReducer, dumbState);
+    const detectableStore = createDetectableStore(dumbReducer, {});
 
     expect(createStoreSpy).toHaveBeenCalledTimes(1);
     expect(detectableStore).toBeInstanceOf(Object);
@@ -60,39 +81,12 @@ describe("createDetectorEnhancer", () => {
   });
 
   it("should create enhancer that creates store with valid replaceDetector function", () => {
-    function dumbReducer(state: any) {
-      return state;
-    }
-    function dumbDetector() {
-      return [];
-    }
-    function nextDetector() {
-      return [{ type: "NEXT_DETECTOR_REPLACED" }];
-    }
-    const states = [0];
-    const subscribed: any[] = [];
-    function createMockStore() {
-      return {
-        dispatch: jest.fn(),
-        subscribe: (listener: any) => {
-          subscribed.push(listener);
-          return () => null;
-        },
-        getState: () => {
-          // return next number on every call
-          states.push(states.length);
-          return states.length - 1;
-        },
-        replaceReducer: jest.fn()
-      } as Store<any, any>;
-    }
+    const nextDetector = () => [{ type: "NEXT_DETECTOR_REPLACED" }];
     const nextDetectorSpy = jest.fn(nextDetector);
     const detectorEnhancer = createDetectorEnhancer(dumbDetector);
     const createDetectableStore = detectorEnhancer(createMockStore);
-    const detectableStore = createDetectableStore(
-      dumbReducer,
-      states[0] as any
-    );
+    const detectableStore = createDetectableStore(dumbReducer, dumbState);
+
     expect(subscribed).toHaveLength(1);
 
     expect(() => {
@@ -105,36 +99,20 @@ describe("createDetectorEnhancer", () => {
     expect(detectableStore.dispatch).toHaveBeenCalledWith({
       type: "@@detector/INIT"
     });
+    const prevDumbState = dumbState;
+    dumbState = { next: true };
 
     // run `detectActions` method
     subscribed[0]();
 
-    expect(nextDetectorSpy).toHaveBeenCalledWith(0, 1);
+    expect(nextDetectorSpy).toHaveBeenCalledWith(prevDumbState, dumbState);
     expect(detectableStore.dispatch).toHaveBeenCalledWith({
       type: "NEXT_DETECTOR_REPLACED"
     });
   });
 
   it("should create store that dispatch if detectors returns single action", () => {
-    function dumbReducer(state: any) {
-      return state;
-    }
-    function singleDetector() {
-      return { type: "SINGLE_ACTION" };
-    }
-    const dumbState = {};
-    const subscribed: any[] = [];
-    function createMockStore() {
-      return {
-        dispatch: jest.fn(),
-        subscribe: (listener: any) => {
-          subscribed.push(listener);
-          return () => null;
-        },
-        getState: () => dumbState,
-        replaceReducer: () => null
-      } as Store<any, any>;
-    }
+    const singleDetector = () => ({ type: "SINGLE_ACTION" });
     const detectorEnhancer = createDetectorEnhancer(singleDetector);
     const createDetectableStore = detectorEnhancer(createMockStore);
     const detectableStore = createDetectableStore(dumbReducer, dumbState);
@@ -148,72 +126,35 @@ describe("createDetectorEnhancer", () => {
   });
 
   it("should create store that runs detector on every subscribe", () => {
-    function dumbReducer(state: any) {
-      return state;
-    }
-    function dumbDetector() {
-      return [];
-    }
-    const states = [0];
-    const subscribed: any[] = [];
-    function createMockStore() {
-      return {
-        dispatch: jest.fn(),
-        subscribe: (listener: any) => {
-          subscribed.push(listener);
-          return () => null;
-        },
-        getState: () => {
-          // return next number on every call
-          states.push(states.length);
-          return states.length - 1;
-        },
-        replaceReducer: () => null
-      } as Store<any, any>;
-    }
     const dumbDetectorSpy = jest.fn(dumbDetector);
     const detectorEnhancer = createDetectorEnhancer(dumbDetectorSpy);
     const createDetectableStore = detectorEnhancer(createMockStore);
-    const detectableStore = createDetectableStore(
-      dumbReducer,
-      states[0] as any
-    );
+    const detectableStore = createDetectableStore(dumbReducer, dumbState);
     expect(subscribed).toHaveLength(1);
 
     expect(detectableStore.dispatch).not.toHaveBeenCalled();
 
+    let prevDumbState = dumbState;
+    dumbState = { next: 1 };
+
     subscribed[0]();
 
-    expect(dumbDetectorSpy).toHaveBeenCalledWith(0, 1);
+    expect(dumbDetectorSpy).toHaveBeenCalledWith(prevDumbState, dumbState);
     expect(detectableStore.dispatch).not.toHaveBeenCalled();
 
+    prevDumbState = dumbState;
+    dumbState = { next: 2 };
+
     subscribed[0]();
 
-    expect(dumbDetectorSpy).toHaveBeenCalledWith(1, 2);
+    expect(dumbDetectorSpy).toHaveBeenCalledWith(prevDumbState, dumbState);
     expect(detectableStore.dispatch).not.toHaveBeenCalled();
   });
 
   it("should create store that doesn't dispatch if detector returns not array or single action", () => {
     const detectorReturn = undefined;
-    function dumbReducer(state: any) {
-      return state;
-    }
-    function scopedDetector() {
-      return detectorReturn;
-    }
-    const dumbState = {};
-    const subscribed: any[] = [];
-    function createMockStore() {
-      return {
-        dispatch: jest.fn(),
-        subscribe: (listener: any) => {
-          subscribed.push(listener);
-          return () => null;
-        },
-        getState: () => dumbState,
-        replaceReducer: () => null
-      } as Store<any, any>;
-    }
+    const scopedDetector = () => detectorReturn;
+
     const detectorEnhancer = createDetectorEnhancer(scopedDetector);
     const createDetectableStore = detectorEnhancer(createMockStore);
     const detectableStore = createDetectableStore(dumbReducer, dumbState);
@@ -278,5 +219,125 @@ describe("createDetectorEnhancer", () => {
     ]);
     expect(detectorHistory).toEqual([[0, 1], [1, 2], [2, 4], [4, 5]]);
     expect(counterStore.getState()).toEqual(5);
+  });
+
+  it("should call listener after dispatch", () => {
+    const onNext = jest.fn();
+    const onError = jest.fn();
+
+    const increment: Action = { type: "INCREMENT" };
+    const fire: Action = { type: "FIRE" };
+    const exception: Action = { type: "EXCEPTION" };
+    const error = new Error("");
+    const reducer: Reducer<number, Action> = (state = 0, { type }) => {
+      switch (type) {
+        case "INCREMENT":
+          return state + 1;
+
+        case "FIRE":
+          return -1;
+
+        case "EXCEPTION":
+          throw error;
+
+        default:
+          return state;
+      }
+    };
+    const detector: ActionsDetector<number> = (
+      prevState = 0,
+      nextState = 0
+    ) => {
+      if (nextState < 0) {
+        return exception;
+      }
+
+      if (prevState % 2 === 0) {
+        return increment;
+      }
+    };
+    const listener = createDetectorListener(onNext, onError);
+    const initialState = 0;
+
+    const store = createStore<number, Action, DetectableStoreExt, {}>(
+      reducer,
+      initialState,
+      createDetectorEnhancer(detector, listener)
+    );
+
+    // call onNext listener
+    store.dispatch(increment);
+
+    expect(onNext).toHaveBeenCalledWith(increment, increment, {
+      dispatch: expect.anything(),
+      getState: expect.anything()
+    });
+    expect(onError).not.toHaveBeenCalled();
+
+    // call onError listener
+    store.dispatch(fire);
+
+    expect(onError).toHaveBeenCalledWith(error, exception, {
+      dispatch: expect.anything(),
+      getState: expect.anything()
+    });
+  });
+
+  it("should prevent UnhandledPromiseRejection error", async () => {
+    const onNext = jest.fn();
+    const onError = jest.fn();
+
+    const error = new Error("");
+    const fire: Action = { type: "FIRE" };
+    const exception = () =>
+      new Promise((resolve, reject) => setTimeout(() => reject(error), 500));
+    const reducer: Reducer<number, any> = (state = 0, { type }) => {
+      if (type === "FIRE") {
+        return -1;
+      }
+
+      return state;
+    };
+    const detector: ActionsDetector<number> = (
+      prevState = 0,
+      nextState = 0
+    ) => {
+      if (nextState < 0) {
+        return exception;
+      }
+    };
+    const listener = createDetectorListener(onNext, onError);
+    const initialState = 0;
+    const thunkMiddleware: Middleware = ({
+      dispatch,
+      getState
+    }) => next => action => {
+      if (typeof action === "function") {
+        return action(dispatch, getState);
+      }
+
+      return next(action);
+    };
+
+    const store = createStore<number, Action, DetectableStoreExt, {}>(
+      reducer,
+      initialState,
+      compose(
+        createDetectorEnhancer(detector, listener),
+        applyMiddleware(thunkMiddleware)
+      )
+    );
+
+    store.dispatch<any>(fire);
+
+    // wait 1 second for promise to be rejected
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    // if we get here it means that UnhandledPromiseRejection wasn't thrown
+
+    expect(onNext).toHaveBeenCalledWith(expect.any(Promise), exception, {
+      dispatch: expect.anything(),
+      getState: expect.anything()
+    });
+    expect(onError).not.toHaveBeenCalled();
   });
 });
