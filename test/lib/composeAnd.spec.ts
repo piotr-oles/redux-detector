@@ -1,6 +1,6 @@
 import { composeAnd } from "../../src";
 
-describe("composeAnd", () => {
+describe("lib/composeAnd", () => {
   it("should export composeAnd function", () => {
     expect(composeAnd).toBeInstanceOf(Function);
   });

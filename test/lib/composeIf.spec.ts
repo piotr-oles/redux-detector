@@ -1,7 +1,7 @@
 import { composeIf } from "../../src";
 
-describe("conditionDetector", () => {
-  it("should export conditionDetector function", () => {
+describe("lib/composeIf", () => {
+  it("should export composeIf function", () => {
     expect(composeIf).toBeInstanceOf(Function);
   });
 

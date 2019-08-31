@@ -1,6 +1,6 @@
 import { combineDetectors } from "../../src";
 
-describe("combineDetectors", () => {
+describe("lib/combineDetectors", () => {
   it("should export reduceDetectors function", () => {
     expect(combineDetectors).toBeInstanceOf(Function);
   });

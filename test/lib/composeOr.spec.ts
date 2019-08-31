@@ -1,6 +1,6 @@
 import { composeOr } from "../../src";
 
-describe("composeOr", () => {
+describe("lib/composeOr", () => {
   it("should export composeOr function", () => {
     expect(composeOr).toBeInstanceOf(Function);
   });

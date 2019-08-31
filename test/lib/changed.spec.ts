@@ -1,6 +1,6 @@
 import { changed } from "../../src";
 
-describe("lib/changed/changed", () => {
+describe("lib/changed", () => {
   const empty = {};
 
   it("should export changed function", () => {
