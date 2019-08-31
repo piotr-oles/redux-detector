@@ -1,6 +1,6 @@
 import { mapNextState } from "../../src";
 
-describe("mapNextState", () => {
+describe("lib/mapNextState", () => {
   const prevState = "a";
   const nextState = "b";
 

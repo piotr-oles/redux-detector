@@ -1,6 +1,6 @@
 import { composeDetectors } from "../../src";
 
-describe("composeDetectors", () => {
+describe("lib/composeDetectors", () => {
   it("should export composeDetectors function", () => {
     expect(composeDetectors).toBeInstanceOf(Function);
   });

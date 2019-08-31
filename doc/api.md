@@ -4,11 +4,12 @@ The list of all available functions from the `redux-detector` package.
 
 ## Redux related API
 
-### `createDetectorEnhancer(detector: ActionsDetector): StoreEnhancer`
+### `createDetectorEnhancer(detector: ActionsDetector, listener?: DetectorListener): StoreEnhancer`
 
 Creates new `StoreDetectableEnhancer` that can be passed as a second or third parameter of the
 `createStore` function from `redux`. This enhancer hooks into store's `dispatch` method
-and adds `replaceDetector` method.
+and adds `replaceDetector` method. You can pass second argument which is a listener that will
+be called with dispatch result (value returned by calling `dispatch`) or dispatch error.
 
 <details>
 <summary>Example:</summary>
@@ -20,6 +21,108 @@ import { rootReducer } from "./store/rootReducer";
 import { rootDetector } from "./store/rootDetector";
 
 const store = createStore(rootReducer, createDetectorEnhancer(rootDetector));
+```
+
+</details>
+
+### `createDetectorListener(onNext?: Function, onError?: Function): DetectorListener`
+
+Creates new DetectorListener that can be passed as a second argument of the `createDetectorEnhancer`
+function. A listener allows to handle all dispatch results and errors done by `redux-detector`.
+Functions `onNext` and `onError` receives three arguments: `result`/`error`, `action`, and `api` which
+is an object: `{ dispatch, getState }` - same as middleware API.
+
+<details>
+<summary>Example:</summary>
+
+```js
+import { createStore } from "redux";
+import { createDetectorEnhancer, createDetectorListener } from "redux-detector";
+import { rootReducer } from "./store/rootReducer";
+import { rootDetector } from "./store/rootDetector";
+import { openSnackbar } from "./store/snackbarAction";
+
+const detectorListener = createDetectorListener(
+  (result, action, { dispatch }) => {
+    if (result instanceof Promise) {
+      result
+        .then(asyncResult => console.log({ asyncResult, action }))
+        .catch(asyncError => {
+          console.error({ asyncError, action });
+          dispatch(openSnackbar("Unknown error occurred"));
+        });
+    } else {
+      console.log({ result, action });
+    }
+  },
+  (error, action, { dispatch }) => {
+    console.error({ error, action });
+    dispatch(openSnackbar("Unknown error occurred"));
+  }
+);
+
+const store = createStore(
+  rootReducer,
+  createDetectorEnhancer(rootDetector, detectorListener)
+);
+```
+
+</details>
+
+### `composeDetectorListeners(...listeners: DetectorListener[]): DetectorListener`
+
+Composes many `DetectorListener`s into one `DetectorListener`. Listeners will be called in the
+same order as passed to this function.
+
+<details>
+<summary>Example:</summary>
+
+```js
+import { createStore } from "redux";
+import {
+  createDetectorEnhancer,
+  createDetectorListener,
+  composeDetectorListeners
+} from "redux-detector";
+import { rootReducer } from "./store/rootReducer";
+import { rootDetector } from "./store/rootDetector";
+import { openSnackbar } from "./store/snackbarAction";
+
+const detectorConsoleListener = createDetectorListener(
+  (result, action) => {
+    if (result instanceof Promise) {
+      result
+        .then(asyncResult => console.log({ asyncResult, action }))
+        .catch(asyncError => console.error({ asyncError, action }));
+    } else {
+      console.log({ result, action });
+    }
+  },
+  (error, action) => {
+    console.error({ error, action });
+  }
+);
+
+const detectorSnackbarListener = createDetectorListener(
+  (result, action, { dispatch }) => {
+    if (result instanceof Promise) {
+      result.catch(() => dispatch(openSnackbar("Unknown error occurred")));
+    }
+  },
+  (error, action, { dispatch }) => {
+    dispatch(openSnackbar("Unknown error occurred"));
+  }
+);
+
+const detectorListener = composeDetectorListeners(
+  detectorConsoleListener,
+  detectorSnackbarListener
+);
+
+const store = createStore(
+  rootReducer,
+  createDetectorEnhancer(rootDetector, detectorListener)
+);
 ```
 
 </details>

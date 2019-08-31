@@ -2,6 +2,7 @@ import { Reducer, Store, StoreEnhancer } from "redux";
 import { DetectableStore } from "./DetectableStore";
 import { DetectableStoreExt } from "./DetectableStoreExt";
 import { ActionsDetector } from "./Detector";
+import { DetectorListener, DetectorListenerAPI } from "./DetectorListener";
 
 export const ActionTypes: { INIT: string } = {
   INIT: "@@detector/INIT"
@@ -16,10 +17,12 @@ export type StoreDetectableEnhancer<S> = StoreEnhancer<
  * Creates detector enhancer that modifies redux store to use it with provided detector.
  *
  * @param detector Root actions detector
+ * @param listener
  * @returns Store enhancer
  */
 export function createDetectorEnhancer<S = any>(
-  detector: ActionsDetector<S>
+  detector: ActionsDetector<S>,
+  listener?: DetectorListener
 ): StoreDetectableEnhancer<S> {
   if (typeof detector !== "function") {
     throw new Error("Expected the detector to be a function.");
@@ -54,6 +57,12 @@ export function createDetectorEnhancer<S = any>(
         }
       };
 
+      // create an API for listener
+      const listenerAPI: DetectorListenerAPI<any, S> = {
+        dispatch: store.dispatch,
+        getState: store.getState
+      };
+
       // have to run detector on every state change
       detectableStore.subscribe(function detectActions(): void {
         const nextState: S = detectableStore.getState();
@@ -75,10 +84,31 @@ export function createDetectorEnhancer<S = any>(
         prevState = nextState;
 
         // dispatch actions for action queue
-        if (isDispatchingFromQueue === false && actionsQueue.length > 0) {
+        if (!isDispatchingFromQueue && actionsQueue.length > 0) {
           isDispatchingFromQueue = true;
           while (actionsQueue.length > 0) {
-            detectableStore.dispatch(actionsQueue.shift());
+            // get next action from the queue
+            const action = actionsQueue.shift();
+
+            try {
+              // dispatch next action - it can throw an error so it's wrapped into try-catch block
+              const result = detectableStore.dispatch(action);
+
+              if (result instanceof Promise) {
+                // prevent UnhandledPromiseRejection error - we can handle it via listener.next but it's optional
+                result.catch(() => null);
+              }
+
+              // if we have a next listener, call it with a result and the listener API
+              if (listener && listener.next) {
+                listener.next(result, action, listenerAPI);
+              }
+            } catch (error) {
+              // if we have an error listener, call it with an error and the listener API
+              if (listener && listener.error) {
+                listener.error(error, action, listenerAPI);
+              }
+            }
           }
           isDispatchingFromQueue = false;
         }
